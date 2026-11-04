@@ -26,6 +26,17 @@ It does **not** use any owner's Docker Hub image as a build dependency, ship mod
 
 法的に配布可能と確認し、必要な受領者向け規約の有効な適用方法を整えた場合に限り、**公開GHCR完成版を初心者コースの先頭にします**。それまではソースとCPU試験用の模擬OCIだけを公開します。技術的・法的な詳細は [配布判断記録](docs/LEGAL_AUDIT.md) にまとめています。
 
+
+## 公開GHCRのライセンス対応（2026-11-05）
+
+モデル4点を同梱した**公開GHCR版は現在も未承認**です。10Eros作者がLTX-2ライセンスの適用を明言したため、条件付き再配布の道はありますが、匿名Pullでは配布先への拘束力ある条件適用と輸出管理を確認できていません。
+
+対応済み：LTX規約全文（Attachment A含む）、Gemma規約の2026-04-01版保存、Gemma必須Notice、ComfyUI GPL全文の収録。CPUテストでは、未承認のモデル入り公開イメージを拒否する仕組みを検証します。GitHub Actionsで模擬OCIのGHCRビルド・Pull・オフライン復元は実証済みです。
+
+詳細：[配布可否の最新状態](legal/public-ghcr-release-gates.json) / [日本語の判断記録](docs/DISTRIBUTION_POLICY_JA.md) / [権利者への具体的な質問文案](docs/RIGHTSHOLDER_INQUIRIES.md)。
+
+**このリポジトリのMITライセンスはモデル自体をMITに変えるものではありません。** モデル同梱の無審査公開・地域制限の注意書きだけの対応は行いません。
+
 ## Status (2026-11-05)
 
 | Component | Status |

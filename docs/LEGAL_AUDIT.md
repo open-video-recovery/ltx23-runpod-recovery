@@ -2,6 +2,19 @@
 
 Date: 2026-11-05. **Technical licensing assessment, not a legal opinion.**
 
+
+## 実装済みの法務準備（2026-11-05）
+
+- LTX-2 (January 5, 2026) の公式全文を `third_party_licenses/LTX-2-Community-License-2026-01-05.txt` に収録。Attachment Aも含みます。
+- Gemma Terms of Use April 1, 2026のスナップショット、Gemma §3.1指定Notice、ComfyUIのGPL-3.0全文を収録。Gemmaの正本はGoogle公式ページであり、保存版は配布前の再確認が必須です。
+- `scripts/collect_official_policies.py` は公式LTX AUP PDF、Gemma公式規約、Gemma prohibited-use policyのコピーを取得し、取得時のSHA256を記録します。**取得実行済みであるとの主張ではありません。**
+- `scripts/check_public_release.py --mode full-public` は承認前の実モデル入りGHCR配布を停止します。承認には9項目以上の具体的証跡と適切な法的確認が必要です。
+- [Gemma §3.1](https://ai.google.dev/gemma/terms) と [LTX §3(a)](https://github.com/Lightricks/LTX-2/blob/main/LICENSE-2) は、下流利用者に拘束力ある利用規約を求めます。無認証Pullを許す公開GHCRについて、実行時の同意やREADMEだけで満たせるとの確認は取れていません。
+- [LTX AUP（2026-03-30版）](https://static.lightricks.com/legal/ltx-acceptable-use-policy.pdf) と [Gemma Prohibited Use Policy](https://ai.google.dev/gemma/prohibited_use_policy) は、性的に露骨な内容などの生成制限を含みます。モデルの技術的能力と許可される利用は別問題です。
+- [GHCR小型模擬OCIテスト](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41934047531) は成功していますが、**実モデルの再配布・GPU生成を実証したものではありません**。
+
+**現状：公開GHCRにモデル本体を配布する最終リーガル承認は未了。** Lightricks/Googleへの照会文案は `docs/RIGHTSHOLDER_INQUIRIES.md` に保存。送信はしていません。
+
 ## Decision (two paths)
 
 **PUBLIC GHCR (full-weight I2V): CONDITIONAL / NOT CLEARED YET.** A publicly
