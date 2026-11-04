@@ -11,3 +11,10 @@
 !contract-fixture/part-0001.bin
 !contract-fixture/part-0002.bin
 !contract-fixture/part-0003.bin
+
+# Whitelisted legal materials: notice and primary license texts
+!third_party_licenses/
+!third_party_licenses/**
+!scripts/check_public_release.py
+!legal/
+!legal/public-ghcr-release-gates.json

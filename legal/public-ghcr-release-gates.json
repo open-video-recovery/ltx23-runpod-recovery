@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "decision": "BLOCKED",
+  "artifact": "public GHCR image containing LTX-2.3 10Eros v1.4, Gemma 3, LoRA and upscaler",
+  "updated_on": "2026-11-05",
+  "note": "Source document inclusion is not sufficient to prove an enforceable downstream agreement or lawful worldwide anonymous access.",
+  "gates": {
+    "ltx_license_text": {
+      "status": "evidence_collected",
+      "evidence": "third_party_licenses/LTX-2-Community-License-2026-01-05.txt"
+    },
+    "gemma_license_text": {
+      "status": "official_snapshot_collected_pending_release_verification",
+      "evidence": "third_party_licenses/Gemma-Terms-of-Use-2026-04-01.md; official HTML snapshot run 41936823780 SHA256 a0858d8e2831346783d5749a2c871a58b937eb831f3a450507db8a772ec81951"
+    },
+    "gemma_notice": {
+      "status": "implemented",
+      "evidence": "third_party_licenses/Gemma-NOTICE.txt"
+    },
+    "comfyui_license": {
+      "status": "evidence_collected",
+      "evidence": "third_party_licenses/ComfyUI-GPL-3.0.txt"
+    },
+    "ltx_aup_copy": {
+      "status": "official_snapshot_collected_pending_inclusion",
+      "evidence": "GitHub Actions run 41936823780 artifact 13374990076 LTX-Acceptable-Use-Policy.pdf SHA256 19bdf16856611b61e54e8c474f45e770c97c95818dcd1dcead7893dbf669af42"
+    },
+    "gemma_prohibited_policy_copy": {
+      "status": "official_snapshot_collected_pending_inclusion",
+      "evidence": "GitHub Actions run 41936823780 artifact 13374990076 Gemma-Prohibited-Use-Policy-Official.html SHA256 2fafa55131e65d0086163aa0e820b419793a49981721fd9875801333466ef36a"
+    },
+    "comfyui_node_notices_source_access": {
+      "status": "pending",
+      "evidence": "Unimplemented final worker/image dependency manifest"
+    },
+    "author_tenstrip_licensing_position": {
+      "status": "evidence_collected",
+      "evidence": "https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37"
+    },
+    "binding_downstream_acceptance_mechanism": {
+      "status": "pending_legal_review",
+      "evidence": "Public GHCR allows anonymous pulls; no confirmed pre-pull clickwrap"
+    },
+    "restricted_recipient_export_compliance": {
+      "status": "pending_legal_review",
+      "evidence": "LTX license Section 7; public worldwide pulls can reach restricted recipients"
+    },
+    "model_license_review_and_signoff": {
+      "status": "pending_legal_review",
+      "evidence": "Explicit written competent review required before full public release"
+    },
+    "original_workflow_rights_or_independent_workflow": {
+      "status": "pending",
+      "evidence": "Original workflow bytes not distributed; independent equivalent not GPU validated"
+    },
+    "full_model_oci_build_and_digest": {
+      "status": "pending",
+      "evidence": "Fake-weight GHCR OCI build/pull/offline restore passed: run 41934047531. No real model image built."
+    },
+    "runpod_gpu_mp4_reproduction": {
+      "status": "pending",
+      "evidence": "Real GPU test not performed"
+    }
+  }
+}
