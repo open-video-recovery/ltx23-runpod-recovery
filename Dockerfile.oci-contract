@@ -10,6 +10,9 @@ COPY scripts/check_public_release.py /opt/recovery/scripts/check_public_release.
 COPY legal/public-ghcr-release-gates.json /opt/recovery/legal/public-ghcr-release-gates.json
 COPY third_party_licenses/ /opt/recovery/third_party_licenses/
 RUN python /opt/recovery/scripts/check_public_release.py --mode fixture
+COPY scripts/verify_legal_snapshot.py /opt/recovery/scripts/verify_legal_snapshot.py
+COPY legal-snapshot/ /opt/recovery/official_legal/
+RUN python /opt/recovery/scripts/verify_legal_snapshot.py --root /opt/recovery/official_legal/
 COPY contract-fixture/chunks.json /opt/recovery/parts/chunks.json
 COPY contract-fixture/part-0000.bin /opt/recovery/parts/part-0000.bin
 COPY contract-fixture/part-0001.bin /opt/recovery/parts/part-0001.bin
