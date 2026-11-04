@@ -1,0 +1,6 @@
+**
+!runtime/
+!runtime/ghcr_smoke.py
+!Dockerfile.ghcr-smoke
+!README.md
+!LICENSE
