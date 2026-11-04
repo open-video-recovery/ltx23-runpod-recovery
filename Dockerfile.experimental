@@ -1,0 +1,18 @@
+# EXPERIMENTAL: no GPU evidence, no model weights or original workflow provided.
+FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04
+ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates git python3 python3-pip python3-venv ffmpeg libgl1 libglib2.0-0 \
+  && rm -rf /var/lib/apt/lists/*
+RUN python3 -m venv /opt/venv
+ENV PATH=/opt/venv/bin:$PATH
+RUN git clone https://github.com/Comfy-Org/ComfyUI /comfyui && \
+  cd /comfyui && git checkout fb2315f11db0ebfaafa9099a5df5227dc6bb42bc
+RUN pip install --no-cache-dir 'runpod==1.8.1' 'huggingface_hub>=0.30,<2' && \
+  pip install --no-cache-dir -r /comfyui/requirements.txt
+WORKDIR /opt/recovery
+COPY runtime/ runtime/
+COPY models.lock.json .
+COPY workflows/ workflows/
+RUN chmod +x runtime/start.sh
+CMD ["/opt/recovery/runtime/start.sh"]
