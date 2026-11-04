@@ -6,6 +6,24 @@ This repository records the historical **LTX 2.3 / 10Eros v1.4** four-model bund
 
 It does **not** use any owner's Docker Hub image as a build dependency, ship model weights, include access tokens, or assert GPU generation has succeeded.
 
+## 完成時の利用方法：2つのコース（配布ライセンスが判断基準）
+
+**A. 公開GHCRの完成済みイメージを指定する** — 再配布条件が満たされた場合の初心者向け最短コース。利用者はGitHubやDockerの操作なしに、自分のRunPod Endpointを作成できます。**現時点では実際のモデル同梱・生成可能な公開イメージは存在しません。** 既存の `oci-contract` / diagnosticsイメージは偽のモデルデータによる転送試験用で、動画は作れません。
+
+**B. 各利用者が自分のGitHubで構築する** — 10Eros等の再配布許諾が未確認、地域・受領者制限がある、公開配布を避けたい場合の独立コース。正規配布元からモデルをクラウドビルド環境へ直接取り込み、SHA256検証後、各自の非公開GHCRにモデル同梱OCIを作る設計です。現時点ではこの巨大モデルの自動ビルドも未完成です。自分用の構築であってもモデルの利用条件は適用されます。
+
+両コースとも**最終的なOCIには4モデル・ComfyUI・Worker・Workflowを同梱**するRirukaChan型を目指します。Network Volumeにモデルを別置きする方式ではありません。利用者のPCへの巨大ダウンロードを必須としませんが、GHCRとRunPodの間では大容量イメージの転送が必要です。
+
+### 公開GHCRへ切り替える法的な条件
+
+- LTX 2.3の **LTX-2 Community License (2026-01-05版)** は再配布を条件付きで許諾しています。第3条では契約として有効な利用制限の継承、全文とAttachment Aの提供、著作権表示維持、変更箇所の告知等が要求されます。単なる地域注意書きだけで全部を満たすとは限りません。
+- Gemma 3も条件付き再配布を認めますが、Gemma Terms of Use 3.1で利用制限の契約への組込み、規約全文と所定のNoticeファイルなどが求められます。
+- 10Eros v1.4の配布者独自の再配布条件は、公開モデルカードから**十分に確認できていません**。Sulphurモデルに由来するため、関連権利や条件の確認も必要です。
+- 禁輸・制裁対象など、実際に配布禁止となる先への提供は、READMEの注意書きでは合法化できません。
+- GPLのComfyUIや各Custom Node、Python依存パッケージの条件も別途確認します。
+
+法的に配布可能と確認し、必要な受領者向け規約の有効な適用方法を整えた場合に限り、**公開GHCR完成版を初心者コースの先頭にします**。それまではソースとCPU試験用の模擬OCIだけを公開します。技術的・法的な詳細は [配布判断記録](docs/LEGAL_AUDIT.md) にまとめています。
+
 ## Status (2026-11-05)
 
 | Component | Status |
