@@ -18,9 +18,11 @@ It does **not** use any owner's Docker Hub image as a build dependency, ship mod
 
 - LTX 2.3の **LTX-2 Community License (2026-01-05版)** は再配布を条件付きで許諾しています。第3条では契約として有効な利用制限の継承、全文とAttachment Aの提供、著作権表示維持、変更箇所の告知等が要求されます。単なる地域注意書きだけで全部を満たすとは限りません。
 - Gemma 3も条件付き再配布を認めますが、Gemma Terms of Use 3.1で利用制限の契約への組込み、規約全文と所定のNoticeファイルなどが求められます。
-- 10Eros v1.4の配布者独自の再配布条件は、公開モデルカードから**十分に確認できていません**。Sulphurモデルに由来するため、関連権利や条件の確認も必要です。
+- **10Eros作者TenStripは、公式ディスカッション#37でLTX-2ライセンスが適用されると明言しています。** 元のSulphur-2-baseにもLTX-2 Community License全文が含まれています。ただし、作者の回答は無条件のGHCR公開許諾ではなく、元のLTX条件の履行が必要です。
 - 禁輸・制裁対象など、実際に配布禁止となる先への提供は、READMEの注意書きでは合法化できません。
 - GPLのComfyUIや各Custom Node、Python依存パッケージの条件も別途確認します。
+
+10Eros作者の回答：[Hugging Face Discussions #37](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37)。元モデルのライセンス：[Sulphur-2-base/LICENSE.txt](https://huggingface.co/SulphurAI/Sulphur-2-base/blob/main/LICENSE.txt)。
 
 法的に配布可能と確認し、必要な受領者向け規約の有効な適用方法を整えた場合に限り、**公開GHCR完成版を初心者コースの先頭にします**。それまではソースとCPU試験用の模擬OCIだけを公開します。技術的・法的な詳細は [配布判断記録](docs/LEGAL_AUDIT.md) にまとめています。
 
