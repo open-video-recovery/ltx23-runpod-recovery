@@ -1,0 +1,26 @@
+name: Recovery kit CPU checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify source syntax and fixtures
+        run: |
+          python -m compileall -q scripts runtime tests
+          python -m unittest discover -s tests -v
+      - name: Reject model binaries and sensitive artifacts
+        run: |
+          if find . -type f \( -name '*.safetensors' -o -name '*.gguf' -o -name '*.mp4' -o -name '*.pem' \) | grep -q .; then
+            echo 'Unexpected model, media or private key artifact committed' >&2
+            exit 1
+          fi
