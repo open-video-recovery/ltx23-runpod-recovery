@@ -1,0 +1,47 @@
+{
+  "schema": "recovery-model-lock-v1",
+  "source": "Historical LTX 2.3 native OCI inventory; file sources and hashes checked against public catalogs",
+  "usage_note": "Historical source image records, not an independently GPU-proven rebuild.",
+  "models": [
+    {
+      "key": "10eros-v14-fp8",
+      "repo": "TenStrip/LTX2.3-10Eros",
+      "revision": "565ba397b8ef339b2225d953fd0fb534884e9fe2",
+      "path": "10Eros_v1.4_fp8mixed_learned.safetensors",
+      "target": "checkpoints/10Eros_v1.4_fp8mixed_learned.safetensors",
+      "sha256": "54bcb40427ff1a3e54cfa6087df765b617bee238d58aa49947c517a727722ad2",
+      "size": 29161843630,
+      "historical_oci_blob": "sha256:f4c2ca43698e5bc1cd1679b5f5d7eca8f1ad01e1031454a29bb574f8e449a434"
+    },
+    {
+      "key": "gemma3-fp4",
+      "repo": "Comfy-Org/ltx-2",
+      "revision": "ccde4ba417d7900669fd56dd292a883cee11ff37",
+      "path": "split_files/text_encoders/gemma_3_12B_it_fp4_mixed.safetensors",
+      "target": "text_encoders/gemma_3_12B_it_fp4_mixed.safetensors",
+      "sha256": "aaca463d11e6d8d2a4bdb0d6299214c15ef78a3f73e0ef8113d5a9d0219b3f6d",
+      "size": 9447702218,
+      "historical_oci_blob": "sha256:607cfa123aa091844add3961246a8522ee1c031aba9304e0a3a98e4352a33034"
+    },
+    {
+      "key": "dynamic-rank111-lora",
+      "repo": "Comfy-Org/ltx-2.3",
+      "revision": "f20f3a54378001e5e6d642acc84719cc78addf4b",
+      "path": "split_files/loras/ltx_2.3_22b_distilled_1.1_lora_dynamic_fro09_avg_rank_111_bf16.safetensors",
+      "target": "loras/ltx_2.3_22b_distilled_1.1_lora_dynamic_fro09_avg_rank_111_bf16.safetensors",
+      "sha256": "31e0c0195fb841bf31af78e8b60858f489e87ddcea4a5239abc80943da65e3ac",
+      "size": 2741024390,
+      "historical_oci_blob": "sha256:86d4c3ff79a056e7bbb7979d0d01656de06ef2c5ed81e2be32fff9b34bf5817f"
+    },
+    {
+      "key": "spatial-upscaler-2x-v11",
+      "repo": "Lightricks/LTX-2.3",
+      "revision": "cd784f3198e9ec3efec60b66a0fd78aafe413a86",
+      "path": "ltx-2.3-spatial-upscaler-x2-1.1.safetensors",
+      "target": "latent_upscale_models/ltx-2.3-spatial-upscaler-x2-1.1.safetensors",
+      "sha256": "5f416311fa8172b65af67530758964708d29a317b830d689a51143b7f91913ed",
+      "size": 995743560,
+      "historical_oci_blob": "sha256:17af361a0a691030f212f0881981088bf98e749243f03bf070eae95e184c7e84"
+    }
+  ]
+}
