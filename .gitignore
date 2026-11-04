@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.safetensors
+*.gguf
+*.mp4
+*.webm
+*.jpg
+*.png
+*.jpeg
+models/
+.env
+.env.*
+*.pem
+*.key
+*.token
+.cache/
+.venv/
