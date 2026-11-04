@@ -64,7 +64,7 @@ an enforceable agreement or a sanctions/access-control mechanism.
 | Component | Governing terms, public-redistribution screening |
 | --- | --- |
 | Lightricks LTX-2.3 and derivatives | **Conditional redistribution expressly contemplated.** [LTX-2 Community License dated 2026-01-05](https://huggingface.co/Lightricks/LTX-2.3/blob/main/LICENSE), §3. Must include original terms/Attachment A, pass on restrictions as enforceable end-user terms, retain notices, identify changes; §7 export controls/sanctions. It is **not** public-domain or an unrestricted open-source grant. Significant commercial-use/revenue restrictions also apply. |
-| TenStrip 10Eros v1.4 FP8 mixed | Derivative of LTX-2.3, and [publisher's model card](https://huggingface.co/TenStrip/LTX2.3-10Eros/raw/main/README.md) says it relies on Sulphur. The README front matter does **not** specify a standalone license or independently authorize all republication terms. **Need to verify publisher's and upstream derivative-specific rights/terms before republishing this checkpoint.** |
+| TenStrip 10Eros v1.4 FP8 mixed | Derivative of LTX-2.3. **TenStrip confirmed in [official discussion #37](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37) that the LTX-2 license applies**, and Sulphur upstream includes the same LTX license. No separate creator-specific prohibition was identified. Conditional LTX Section 3 redistribution rules still must be fulfilled; the creator response is not blanket permission to redistribute irrespective of downstream contracts. |
 | Sulphur source material | [SulphurAI original README](https://huggingface.co/SulphurAI/Sulphur-2-base/raw/main/README.md) credits TenStrip with the I2V derivative. The LTX base terms remain relevant, but separately validate any additional terms imposed by the source model publisher. |
 | Gemma 3 / converted Gemma 3 text encoder | [Google Gemma Terms of Use (2026-04-01)](https://ai.google.dev/gemma/terms), §3.1 explicitly contemplates redistribution **subject to** an enforceable downstream use restriction, furnishing the full terms, modification notices and mandatory **Notice** file. Determine treatment of the particular Comfy-Org FP4 conversion. |
 | LTX-2.3 distilled rank-111 LoRA, x2 spatial upscaler | Verify the exact revisions' licensing (including LTX derivative grant and Comfy-Org packaging) and carry along applicable notices. Current model-lock hashes show provenance, not legal clearance. |
@@ -88,8 +88,8 @@ restricted distribution channel or independent recipient builds.
 
 ## Public GHCR release gates (must all be checked)
 
-- [ ] TenStrip 10Eros v1.4 redistribution rights and relevant Sulphur-derived
-      obligations are independently established, with source references.
+- [x] TenStrip author publicly identifies LTX-2 as governing license;
+      Sulphur upstream has LTX-2 license text. Remaining conditions apply.
 - [ ] LTX-2 Community License, full Attachment A, other applicable license
       texts and copyright notices are included with the OCI distribution.
 - [ ] Gemma 3 Terms of Use, full terms, mandatory Notice file and
