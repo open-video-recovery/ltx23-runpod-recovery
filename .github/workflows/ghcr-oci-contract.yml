@@ -9,6 +9,11 @@ on:
       - "scripts/model_chunks.py"
       - "scripts/oci_contract_fixture.py"
       - "tests/test_model_chunks.py"
+      - "scripts/check_public_release.py"
+      - "scripts/verify_legal_snapshot.py"
+      - "scripts/collect_official_policies.py"
+      - "third_party_licenses/**"
+      - "legal/public-ghcr-release-gates.json"
   workflow_dispatch:
 
 permissions:
@@ -32,6 +37,10 @@ jobs:
         run: |
           python -m unittest discover -s tests -v
           python scripts/oci_contract_fixture.py
+      - name: Collect official license policies into OCI build context
+        run: |
+          python scripts/collect_official_policies.py --out legal-snapshot
+          python scripts/verify_legal_snapshot.py --root legal-snapshot
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Authenticate to GitHub Container Registry
@@ -56,7 +65,8 @@ jobs:
           set -euo pipefail
           docker pull ghcr.io/open-video-recovery/ltx23-runpod-recovery:oci-contract
           docker run --rm --network none ghcr.io/open-video-recovery/ltx23-runpod-recovery:oci-contract
-          echo "GHCR_PUBLISHED_EMBEDDED_CHUNK_CONTRACT_PASS"
+          docker run --rm --network none --entrypoint python ghcr.io/open-video-recovery/ltx23-runpod-recovery:oci-contract /opt/recovery/scripts/verify_legal_snapshot.py --root /opt/recovery/official_legal
+          echo "GHCR_PUBLISHED_EMBEDDED_CHUNK_CONTRACT_AND_LEGAL_DOCS_PASS"
       - name: Record immutable image manifest digest
         env:
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
