@@ -21,6 +21,44 @@ This option is not yet GPU- or large-OCI-build-verified.
 No third-party weight binaries, original legacy source, original RirukaChan
 OCI blobs, or working I2V image are currently distributed here.
 
+## 10Eros licensing finding (verified 2026-11-05)
+
+**AUTHOR CONFIRMATION LOCATED.** In [TenStrip's answer to issue/discussion #37,
+"Can you add a license for this model?"](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37),
+the original 10Eros creator stated: "It's LTXV2 license, I don't control it."
+The reply additionally distinguishes use of generated media from offering a
+commercial generation service. This provides material evidence that the author
+intends 10Eros to be governed by the original LTX-2 licensing scheme, not a
+separate unannounced independent license.
+
+The [upstream Sulphur-2-base repository](https://huggingface.co/SulphurAI/Sulphur-2-base/blob/main/LICENSE.txt)
+also ships the January 5, 2026 **LTX-2 Community License**, corroborating
+the derivative licensing chain.
+
+[Official Lightricks license index](https://github.com/Lightricks/LTX-2/blob/main/LICENSE)
+clarifies that **LTX-2.3 is under the January 5, 2026 LTX-2 Community License**
+and should not be silently replaced with the newer license for later releases.
+
+**Assessment:** no independent TenStrip-specific licensing prohibition has been
+found, and the author explicitly points to LTX-2 terms. This supports a
+*conditional* redistribution route for 10Eros v1.4 under LTX-2 Section 3,
+not an unrestricted public GHCR grant. Note that the FP8 mixed learned
+checkpoint also credits a quantizer, so verify any separately applicable
+contribution conditions if any are identified.
+
+**Not resolved by this confirmation:** LTX-2 Section 3 requires enforceable
+downstream-use restrictions, the entire license and Attachment A, source
+attribution and change notices; Section 7 imposes export/sanctions obligations.
+Gemma 3 separately requires enforceable terms, a complete copy of its terms,
+and a mandatory Notice file. These obligations still apply to the full
+model-bundled GHCR image even if no new permission from TenStrip is needed.
+
+**Release gate interpretation:** 10Eros-specific author-position evidence
+is now **FOUND**. Public GHCR full-weight distribution remains **ON HOLD**
+until the other licenses, distribution mechanisms, and technical checks are
+satisfied. Do not claim that an informational README is by itself
+an enforceable agreement or a sanctions/access-control mechanism.
+
 ## Component-by-component assessment
 
 | Component | Governing terms, public-redistribution screening |
