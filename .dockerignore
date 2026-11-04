@@ -18,3 +18,7 @@
 !scripts/check_public_release.py
 !legal/
 !legal/public-ghcr-release-gates.json
+
+!legal-snapshot/
+!legal-snapshot/**
+!scripts/verify_legal_snapshot.py
