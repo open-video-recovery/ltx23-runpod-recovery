@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "decision": "BLOCKED",
+  "artifact": "public GHCR image containing LTX-2.3 10Eros v1.4, Gemma 3, LoRA and upscaler",
+  "updated_on": "2026-11-05",
+  "note": "Source document inclusion is not sufficient to prove an enforceable downstream agreement or lawful worldwide anonymous access.",
+  "gates": {
+    "ltx_license_text": {
+      "status": "evidence_collected",
+      "evidence": "third_party_licenses/LTX-2-Community-License-2026-01-05.txt"
+    },
+    "gemma_license_text": {
+      "status": "snapshot_only",
+      "evidence": "third_party_licenses/Gemma-Terms-of-Use-2026-04-01.md; primary canonical source https://ai.google.dev/gemma/terms"
+    },
+    "gemma_notice": {
+      "status": "implemented",
+      "evidence": "third_party_licenses/Gemma-NOTICE.txt"
+    },
+    "comfyui_license": {
+      "status": "evidence_collected",
+      "evidence": "third_party_licenses/ComfyUI-GPL-3.0.txt"
+    },
+    "ltx_aup_copy": {
+      "status": "pending",
+      "evidence": "https://static.lightricks.com/legal/ltx-acceptable-use-policy.pdf"
+    },
+    "gemma_prohibited_policy_copy": {
+      "status": "pending",
+      "evidence": "https://ai.google.dev/gemma/prohibited_use_policy"
+    },
+    "comfyui_node_notices_source_access": {
+      "status": "pending",
+      "evidence": "Unimplemented final worker/image dependency manifest"
+    },
+    "author_tenstrip_licensing_position": {
+      "status": "evidence_collected",
+      "evidence": "https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37"
+    },
+    "binding_downstream_acceptance_mechanism": {
+      "status": "pending_legal_review",
+      "evidence": "Public GHCR allows anonymous pulls; no confirmed pre-pull clickwrap"
+    },
+    "restricted_recipient_export_compliance": {
+      "status": "pending_legal_review",
+      "evidence": "LTX license Section 7; public worldwide pulls can reach restricted recipients"
+    },
+    "model_license_review_and_signoff": {
+      "status": "pending_legal_review",
+      "evidence": "Explicit written competent review required before full public release"
+    },
+    "original_workflow_rights_or_independent_workflow": {
+      "status": "pending",
+      "evidence": "Original workflow bytes not distributed; independent equivalent not GPU validated"
+    },
+    "full_model_oci_build_and_digest": {
+      "status": "pending",
+      "evidence": "Only fake-weight image contract successfully built"
+    },
+    "runpod_gpu_mp4_reproduction": {
+      "status": "pending",
+      "evidence": "Real GPU test not performed"
+    }
+  }
+}
