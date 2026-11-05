@@ -22,16 +22,16 @@
       "evidence": "third_party_licenses/ComfyUI-GPL-3.0.txt"
     },
     "ltx_aup_copy": {
-      "status": "official_snapshot_collected_pending_inclusion",
-      "evidence": "GitHub Actions run 41936823780 artifact 13374990076 LTX-Acceptable-Use-Policy.pdf SHA256 19bdf16856611b61e54e8c474f45e770c97c95818dcd1dcead7893dbf669af42"
+      "status": "verified_in_test_image_only",
+      "evidence": "Official LTX AUP SHA256 snapshot 19bdf16856611b61e54e8c474f45e770c97c95818dcd1dcead7893dbf669af42; offline verification inside fake-weight OCI: run 41937445861. Must still include in production image."
     },
     "gemma_prohibited_policy_copy": {
-      "status": "official_snapshot_collected_pending_inclusion",
-      "evidence": "GitHub Actions run 41936823780 artifact 13374990076 Gemma-Prohibited-Use-Policy-Official.html SHA256 2fafa55131e65d0086163aa0e820b419793a49981721fd9875801333466ef36a"
+      "status": "verified_in_test_image_only",
+      "evidence": "Official Gemma prohibited-use HTML SHA256 snapshot 2fafa55131e65d0086163aa0e820b419793a49981721fd9875801333466ef36a; offline verification inside fake-weight OCI: run 41937445861. Must still include in production image."
     },
     "comfyui_node_notices_source_access": {
       "status": "pending",
-      "evidence": "Unimplemented final worker/image dependency manifest"
+      "evidence": "NOTICE-THIRD-PARTY.md created, but full pinned custom-node list and matching source/redistribution licenses unverified."
     },
     "author_tenstrip_licensing_position": {
       "status": "evidence_collected",
@@ -54,8 +54,8 @@
       "evidence": "Original workflow bytes not distributed; independent equivalent not GPU validated"
     },
     "full_model_oci_build_and_digest": {
-      "status": "pending",
-      "evidence": "Fake-weight GHCR OCI build/pull/offline restore passed: run 41934047531. No real model image built."
+      "status": "software_preparation_verified_real_model_pending",
+      "evidence": "4-model staging, split COPY and offline restoration CPU tests: run 41941448557; fake OCI GHCR publish/pull: run 41937445861. Real 42GB model-bearing OCI has not been built or published."
     },
     "runpod_gpu_mp4_reproduction": {
       "status": "pending",
