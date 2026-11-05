@@ -2,17 +2,17 @@
 
 画像1枚から動画を生成する、自分専用のRunPod Endpointを作る手順です。**Docker・GitHub・モデルのダウンロード操作は不要です。**
 
-> **現在：動画用GHCRイメージは準備中。** 次のイメージの実際のDigestが掲載されるまで、有料Endpointを作成しないでください。
+> **GHCR登録済み（2026-11-05）。** RunPodでのGPU動画生成および匿名Pullは未確認です。GPU利用は有料のため、確認する際は注意してください。
 
 ## 1. GHCRイメージ
 
-完成後に、確認済みの固定OCI Digestをここへ掲載します。
+下記はGitHub Actionsで発行された固定Digestです。GHCRのPackageがPrivateの場合はRunPodでRegistry Authenticationが必要です。
 
 ~~~text
-ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:【公開後に記載】
+ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5
 ~~~
 
-既存のLTX 2.3 / 10Eros v1.4モデル、Worker、Workflowは維持し、配布に必要なライセンス文書だけを追加する方針です。
+既存のLTX 2.3 / 10Eros v1.4モデル、Worker、Workflowを再利用し、GHCRの10GB/レイヤー制限のため巨大レイヤーを分割しました。実行時に元のレイヤー内容を復元してからWorkerを起動します。ライセンス文書も同梱しています。
 
 ## 2. RunPodでEndpointを作成
 
