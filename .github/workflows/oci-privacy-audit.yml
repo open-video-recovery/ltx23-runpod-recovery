@@ -1,0 +1,174 @@
+name: OCI provenance privacy audit (metadata only, no tests)
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/oci-privacy-audit.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source OCI metadata, layer history, and small file overlays
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import gzip
+          import hashlib
+          import io
+          import json
+          import re
+          import sys
+          import tarfile
+          import urllib.parse
+          import urllib.request
+          from collections import defaultdict
+          from pathlib import Path
+
+          # Derive the source from existing publish configuration; never print it.
+          cfg = Path(".github/workflows/ghcr-legacy-license-overlay.yml").read_text()
+          match = re.search(r"(?m)^\s*SOURCE_IMAGE:\s*(docker\.io/[^ \r\n]+)\s*$", cfg)
+          if not match:
+              sys.exit("AUDIT_SOURCE_NOT_CONFIGURED")
+          source = match.group(1).removeprefix("docker.io/")
+          repository, tag = source.rsplit(":", 1)
+          owner = repository.split("/",1)[0].lower()
+          reg = "https://registry-1.docker.io/v2/" + repository
+          auth_url = "https://auth.docker.io/token?" + urllib.parse.urlencode({
+              "service": "registry.docker.io",
+              "scope": "repository:" + repository + ":pull",
+          })
+
+          class NoCrossHostAuth(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  nextreq = super().redirect_request(req, fp, code, msg, headers, newurl)
+                  if nextreq is not None and urllib.parse.urlsplit(req.full_url).hostname != urllib.parse.urlsplit(newurl).hostname:
+                      nextreq.remove_header("Authorization")
+                      nextreq.unredirected_hdrs.pop("Authorization", None)
+                  return nextreq
+
+          opener = urllib.request.build_opener(NoCrossHostAuth())
+          def retrieve(url, token=None, max_bytes=2000000, accept=None):
+              headers = {"User-Agent": "OCI-metadata-privacy-inspector/1.0"}
+              if token: headers["Authorization"] = "Bearer " + token
+              if accept: headers["Accept"] = accept
+              with opener.open(urllib.request.Request(url, headers=headers), timeout=45) as response:
+                  raw = response.read(max_bytes+1)
+                  if len(raw)>max_bytes: raise ValueError("REGISTRY_METADATA_EXCEEDS_LIMIT")
+                  return raw
+
+          try:
+              token = json.loads(retrieve(auth_url, max_bytes=300000))["token"]
+              accept = ", ".join([
+                  "application/vnd.oci.image.index.v1+json",
+                  "application/vnd.docker.distribution.manifest.list.v2+json",
+                  "application/vnd.oci.image.manifest.v1+json",
+                  "application/vnd.docker.distribution.manifest.v2+json",
+              ])
+              raw = retrieve(reg + "/manifests/" + tag, token, accept=accept)
+              manifest = json.loads(raw)
+              if "manifests" in manifest:
+                  matching = [x for x in manifest["manifests"] if x.get("platform",{}).get("os")=="linux" and x.get("platform",{}).get("architecture")=="amd64"]
+                  if not matching: raise ValueError("NO_LINUX_AMD64_MANIFEST")
+                  raw = retrieve(reg+"/manifests/"+matching[0]["digest"],token,accept=accept)
+                  manifest = json.loads(raw)
+              if "config" not in manifest or "layers" not in manifest: raise ValueError("NOT_IMAGE_MANIFEST")
+              config_data = retrieve(reg+"/blobs/"+manifest["config"]["digest"],token,max_bytes=2500000)
+              if "sha256:"+hashlib.sha256(config_data).hexdigest()!=manifest["config"]["digest"]:
+                  raise ValueError("CONFIG_DIGEST_MISMATCH")
+              config = json.loads(config_data)
+          except Exception as e:
+              # Do not reveal registry URL or credentials in public logs.
+              print("AUDIT_UNAVAILABLE",type(e).__name__,str(e).split(":")[0][:75])
+              sys.exit(2)
+
+          def flags(text):
+              s=str(text)
+              low=s.lower()
+              found=[]
+              if owner in low: found.append("SOURCE_OWNER_NAME")
+              if re.search(r"\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b",s): found.append("EMAIL")
+              if re.search(r"(?i)(?:/home/[^/\s\"']+|[a-z]:\\\\users\\\\[^\\\\\s\"']+)",s): found.append("PERSONAL_HOME_PATH")
+              if re.search(r"(?i)(?:password|passwd|api[_-]?key|secret|token)\s*[:=]\s*[^,\s;\"']{8,}",s): found.append("POTENTIAL_CREDENTIAL_LITERAL")
+              if re.search(r"(?i)(?:https?://)?github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",s): found.append("GITHUB_REPO_REFERENCE")
+              if re.search(r"(?i)(?:docker\.io/|docker\.com/r/)[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",s): found.append("DOCKERHUB_REFERENCE")
+              return sorted(set(found))
+
+          def audit_map(data,kind):
+              return [{"name":str(key), "flags":flags(val)} for key,val in sorted((data or {}).items())]
+
+          image_config = config.get("config",{})
+          layers = manifest["layers"]
+          layer_flags=defaultdict(set)
+          history_ops=defaultdict(list)
+          history=config.get("history",[])
+          layer_idx=-1
+          for entry in history:
+              if not entry.get("empty_layer",False):layer_idx+=1
+              c=str(entry.get("created_by",""))
+              op=re.sub(r"^\s*(?:/bin/sh -c |#\(nop\) )*","",c).split(" ",1)[0][:28]
+              if layer_idx>=0 and layer_idx<len(layers):
+                  history_ops[layer_idx].append(op)
+                  for value in (entry.get("created_by",""),entry.get("author",""),entry.get("comment","")):
+                      layer_flags[layer_idx].update(flags(value))
+          small_scanned=0
+          small_errors=0
+          for idx, desc in enumerate(layers):
+              if not desc.get("size",0)<=300000:continue
+              try:
+                  raw=retrieve(reg+"/blobs/"+desc["digest"],token,max_bytes=305000)
+                  if hashlib.sha256(raw).hexdigest()!=desc["digest"].removeprefix("sha256:"):
+                      raise ValueError("LAYER_DIGEST_MISMATCH")
+                  # Compressed text and tar files are inspected only in memory.
+                  f=io.BytesIO(raw)
+                  with tarfile.open(fileobj=f,mode="r:*") as tar:
+                      for member in tar:
+                          layer_flags[idx].update(flags(member.name))
+                          if member.isfile() and member.size<200000 and member.name.lower().endswith((".py",".json",".sh",".txt",".md",".yml",".yaml",".cfg",".ini",".toml")):
+                              data=tar.extractfile(member).read(200001)
+                              layer_flags[idx].update(flags(data.decode("utf-8","replace")))
+                  small_scanned+=1
+              except Exception:
+                  small_errors+=1
+
+          global_checks={
+              "labels":audit_map(image_config.get("Labels"),"label"),
+              "environment": [{"name":x.split("=",1)[0],"flags":flags(x)} for x in image_config.get("Env",[])],
+              "manifest_annotations":audit_map(manifest.get("annotations"),"annotation"),
+              "top_level_author_flags":flags(config.get("author","")),
+              "config_other_flags":flags(json.dumps({
+                  k:image_config.get(k) for k in ("User","WorkingDir","Entrypoint","Cmd","OnBuild","Volumes")
+              },ensure_ascii=False)),
+          }
+          per_layer=[]
+          for idx,desc in enumerate(layers):
+              per_layer.append({
+                  "n":idx+1,
+                  "digest_short":desc["digest"][7:19],
+                  "size_mib":round(desc.get("size",0)/1048576,1),
+                  "history_ops":history_ops.get(idx,[])[-3:],
+                  "flags":sorted(layer_flags[idx]),
+                  "content_scanned":bool(desc.get("size",0)<=300000),
+              })
+          report={
+              "manifest_digest":"sha256:"+hashlib.sha256(raw if False else json.dumps(manifest,separators=(",",":")).encode()).hexdigest() if False else "omitted",
+              "source_ref_printed":False,
+              "num_layers":len(layers),
+              "compressed_gib":round(sum(x["size"] for x in layers)/1073741824,2),
+              "largest_layer_gib":round(max(x["size"] for x in layers)/1073741824,2),
+              "layers_over_10gb":sum(x["size"]>=10000000000 for x in layers),
+              "history_entries":len(history),
+              "history_layers_mapped":layer_idx+1,
+              "small_layers_scanned":small_scanned,
+              "small_layers_unreadable":small_errors,
+              "global":global_checks,
+              "layers":per_layer,
+              "limitations":"Large compressed layer contents not downloaded; file paths/text inside large layers not fully audited. No raw identifying strings printed.",
+          }
+          print("OCI_PRIVACY_REPORT_START")
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          print("OCI_PRIVACY_REPORT_END")
+          PY
