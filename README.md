@@ -2,15 +2,11 @@
 
 画像1枚から動画を生成する、自分専用のRunPod Endpointを作る手順です。**Docker・GitHub・モデルのダウンロード操作は不要です。**
 
-> **GHCR登録済み（2026-11-05）。** RunPodでのGPU動画生成および匿名Pullは未確認です。GPU利用は有料のため、確認する際は注意してください。
+> **公開前監査中：一般利用向けイメージの案内は停止しています。** GHCRの登録は成功しましたが、法務・匿名性の確認が未了です。RunPodでのGPU動画生成も未検証です。
 
 ## 1. GHCRイメージ
 
-下記はGitHub Actionsで発行された固定Digestです。GHCRのPackageがPrivateの場合はRunPodでRegistry Authenticationが必要です。
-
-~~~text
-ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5
-~~~
+公開前の監査が完了したら、確認済みのGHCR固定Digestを掲載します。**監査未完了のイメージ参照先は案内していません。**
 
 既存のLTX 2.3 / 10Eros v1.4モデル、Worker、Workflowを再利用し、GHCRの10GB/レイヤー制限のため巨大レイヤーを分割しました。実行時に元のレイヤー内容を復元してからWorkerを起動します。ライセンス文書も同梱しています。
 
@@ -18,13 +14,13 @@ ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:434141dc283fe49808b9313
 
 1. [RunPod](https://www.runpod.io/)に登録し、支払い設定を行います（GPU利用は有料）。
 2. RunPod Console → **Serverless → New Endpoint**。
-3. **Import from Docker Registry** を選び、上のGHCRイメージを入力。
+3. **Import from Docker Registry** を選び、公開審査後に掲載するGHCRイメージを入力。
 4. **Queue**タイプを選び、公開時に指定するGPU・Disk・Timeoutを設定。
 5. 初回は **Active Workers = 0、Max Workers = 1** として **Deploy Endpoint**。
 
-既存のEndpointを使う場合は、Endpointの編集画面でContainer Imageを新しいGHCRの固定Digestに変更します。
+既存のEndpointを使う場合は、公開審査後にEndpointの編集画面からContainer Imageを変更します。
 
-GHCRがPrivateの場合はRunPodで**Registry Authentication**を設定する必要があります。初心者向けには、公開条件が整ったイメージを案内します。
+GPU利用は有料です。配布条件と動作確認が整うまではEndpointの作成を控えてください。
 
 ## 3. Requestsから動画生成
 
