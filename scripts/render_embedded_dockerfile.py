@@ -8,7 +8,7 @@ worker rebuilds all model files locally (no external model downloads).
 
 * Does not publish, sign off, or test a full GPU image.
 * Fails if audited workflows/i2v.json is absent (unless test-only flag).
-* Uses an official NVIDIA CUDA base, never a retired RirukaChan image.
+* Uses our own pinned GHCR ComfyUI/PyTorch engine base, never a retired RirukaChan image.
 * For production, the ComfyUI dependency and custom-node stack must be pinned,
   the workflow GPU-tested, and the public legal gate satisfied.
 """
@@ -50,15 +50,9 @@ def render(staging: Path, project: Path, *, test_only: bool = False) -> Path:
 
     lines = [
         "# GENERATED CANDIDATE: never publish as verified GPU video endpoint.",
-        "FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu24.04",
+        "FROM ghcr.io/open-video-recovery/ltx23-runpod-recovery@sha256:6eddba26842c6f6d02e9f07ef3a409d11eee3b54425e5b7890b1666e1e3aa07e",
         'LABEL org.opencontainers.image.source="https://github.com/open-video-recovery/ltx23-runpod-recovery"',
-        'LABEL org.opencontainers.image.description="Experimental LTX 2.3 model-bundled OCI candidate; NOT GPU validated"',
-        'ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1',
-        "RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates git python3 python3-pip python3-venv ffmpeg libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*",
-        "RUN python3 -m venv /opt/venv",
-        "ENV PATH=/opt/venv/bin:$PATH",
-        "RUN git clone https://github.com/Comfy-Org/ComfyUI /comfyui && cd /comfyui && git checkout fb2315f11db0ebfaafa9099a5df5227dc6bb42bc",
-        "RUN pip install --no-cache-dir 'runpod==1.8.1' && pip install --no-cache-dir -r /comfyui/requirements.txt",
+        'LABEL org.opencontainers.image.description="Experimental LTX 2.3 full-model private candidate; NOT video verified"',
         "WORKDIR /opt/recovery",
         "COPY runtime/ runtime/",
         "COPY scripts/model_chunks.py scripts/model_chunks.py",
