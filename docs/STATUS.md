@@ -2,6 +2,18 @@
 
 更新日：2026-11-05。**モデル同梱の動画生成用RunPod Endpointはまだ完成していません。**
 
+## 2026-11-05 公開前監査 — Publicリリース不可
+
+- **実際の匿名GHCR Pull成功**：2026-11-05 [監査 run 41989198610](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41989198610)。すでに匿名取得可能であり、未公開という以前の認識は誤り。
+- **READMEの公開モデル参照リンクを一時撤去済み**。ただし、リンク撤去はGHCR取得の停止や過去Gitコミット削除にはならない。
+- **公開Git履歴に元Docker Hubアカウントを示す古いコミットがある**。匿名性を保証できない。
+- **完成OCI実物のライセンス・Noticeの存在は確認済み**（LTX/Gemma/ComfyUI、AUP、公式ポリシー）。一方、元Python/Workflowと全Custom Nodesの再配布権限・義務、利用制限の下流契約実装は未確認。
+- モデルを登録する**自動公開Workflowは停止済み**。監査中に起動済みの再公開run 41989261449はキャンセル要求が受理された。
+- GitHub公式仕様では一度PublicのパッケージをPrivateに戻せない。削除は別途ユーザーの判断・承認が必要。
+- 結論と監査証拠：[2026-11-05 公開前リーガル・匿名性監査](PUBLIC_GHCR_RELEASE_AUDIT_20261105.md)／[公開可否台帳](../legal/public-ghcr-release-gates.json)。
+
+**以下に残る旧ステータスの「Private」「未登録」「準備中」は過去時点の記述です。上記の最新監査結果を優先してください。**
+
 ## 2026-11-05 15:08 JST：GHCRモデル同梱OCI登録成功
 
 - [GitHub Actions run 41976344090](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41976344090) が **success**。
