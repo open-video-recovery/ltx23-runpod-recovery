@@ -1,0 +1,37 @@
+# No weights. Preparatory GHCR engine BASE for the future full model-bearing OCI.
+# Explicitly not a video endpoint until the audited workflow/custom nodes/weights exist.
+# Upstream model bytes are never copied from Docker Hub or the retired Riruka image.
+FROM python:3.12-slim-bookworm
+LABEL org.opencontainers.image.source="https://github.com/open-video-recovery/ltx23-runpod-recovery"
+LABEL org.opencontainers.image.licenses="MIT; third-party models and ComfyUI are separately licensed"
+LABEL org.opencontainers.image.description="EXPERIMENTAL GPU-capable ComfyUI/RunPod base. No LTX models, I2V workflow or GPU validation."
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    COMFY_URL=http://127.0.0.1:8188
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      bash ca-certificates git ffmpeg libgl1 libglib2.0-0 libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+# Install CUDA-enabled torch in the image; the host supplies the NVIDIA driver.
+RUN python -m pip install --disable-pip-version-check \
+    --index-url https://download.pytorch.org/whl/cu128 \
+    "torch==2.8.0" "torchvision==0.23.0" "torchaudio==2.8.0"
+ARG COMFYUI_REF=fb2315f11db0ebfaafa9099a5df5227dc6bb42bc
+RUN git init /comfyui && git -C /comfyui remote add origin https://github.com/Comfy-Org/ComfyUI.git \
+    && git -C /comfyui fetch --depth 1 origin "$COMFYUI_REF" \
+    && git -C /comfyui checkout --detach FETCH_HEAD
+RUN python -m pip install --disable-pip-version-check \
+    -r /comfyui/requirements.txt \
+    "runpod==1.8.1" "huggingface_hub>=0.30,<2"
+WORKDIR /opt/recovery
+COPY runtime/ runtime/
+COPY scripts/model_chunks.py scripts/model_chunks.py
+COPY models.lock.json models.lock.json
+COPY workflows/ workflows/
+COPY NOTICE-THIRD-PARTY.md NOTICE-THIRD-PARTY.md
+COPY third_party_licenses/ third_party_licenses/
+RUN mkdir -p /comfyui/models /comfyui/input /comfyui/output \
+    && chmod +x /opt/recovery/runtime/start.sh
+# runtime/start.sh refuses to claim working I2V until audited i2v.json is present.
+CMD ["/bin/bash", "/opt/recovery/runtime/start.sh"]
