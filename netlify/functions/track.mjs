@@ -2,7 +2,7 @@ import { createHmac } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 import { eventKey, jstDay, validateEvent } from '../../lib/metrics.mjs';
 const reply = (status) => new Response(null,{status,headers:{
-  'Cache-Control':'no-store', 'Access-Control-Allow-Origin':'null'
+  'Cache-Control':'no-store'
 }});
 export default async function handler(request) {
   if (request.method !== 'POST') return reply(405);
