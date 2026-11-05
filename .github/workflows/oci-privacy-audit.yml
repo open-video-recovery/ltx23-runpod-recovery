@@ -1,8 +1,5 @@
 name: OCI provenance privacy audit (metadata only, no tests)
 on:
-  push:
-    branches: [main]
-    paths: [".github/workflows/oci-privacy-audit.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,6 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Inspect source OCI metadata, layer history, and small file overlays
+        env:
+          OCI_SOURCE_IMAGE: ${{ vars.OCI_SOURCE_IMAGE }}
         shell: bash
         run: |
           python3 - <<'PY'
@@ -20,6 +19,7 @@ jobs:
           import hashlib
           import io
           import json
+          import os
           import re
           import sys
           import tarfile
@@ -28,12 +28,10 @@ jobs:
           from collections import defaultdict
           from pathlib import Path
 
-          # Derive the source from existing publish configuration; never print it.
-          cfg = Path(".github/workflows/ghcr-legacy-license-overlay.yml").read_text()
-          match = re.search(r"(?m)^\s*SOURCE_IMAGE:\s*(docker\.io/[^ \r\n]+)\s*$", cfg)
-          if not match:
+          # Reference is an ordinary Actions variable, not a secret. Do not print it.
+          source = os.environ.get("OCI_SOURCE_IMAGE","").removeprefix("docker.io/")
+          if "/" not in source or ":" not in source:
               sys.exit("AUDIT_SOURCE_NOT_CONFIGURED")
-          source = match.group(1).removeprefix("docker.io/")
           repository, tag = source.rsplit(":", 1)
           owner = repository.split("/",1)[0].lower()
           reg = "https://registry-1.docker.io/v2/" + repository
