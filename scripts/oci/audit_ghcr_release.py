@@ -68,6 +68,19 @@ def main():
     check(max(d["size"] for d in entries)<10_000_000_000,"GHCR_LAYER_OVER_LIMIT")
     check(config.get("rootfs",{}).get("type")=="layers","CONFIG_ROOTFS_INVALID")
     check(len(config["rootfs"].get("diff_ids",[]))==len(entries),"DIFFIDS_LAYER_COUNT_MISMATCH")
+    # Check anonymous pull status without changing package visibility.
+    import urllib.parse
+    q=urllib.parse.urlencode({"service":"ghcr.io","scope":"repository:"+REPO+":pull"})
+    anon_status,_,anon_raw=mod.api("GET","https://ghcr.io/token?"+q,limit=150000)
+    if anon_status==200:
+        anon_token=json.loads(anon_raw).get("token")
+        pull_code,_,pull_raw=mod.api("GET",BASE+"/manifests/"+PIN,
+                                   token=anon_token,accept=mod.MANIFEST)
+        anon_result=("ANONYMOUS_PULL_SUCCEEDED" if pull_code==200 and mod.digest(pull_raw)==PIN
+                     else "ANONYMOUS_PULL_DENIED_"+str(pull_code))
+    else:
+        anon_result="ANONYMOUS_TOKEN_NOT_AVAILABLE_"+str(anon_status)
+    print("GHCR_ANONYMOUS_PULL",anon_result)
     print("PINNED_IMAGE_VERIFIED",PIN)
     print("OCI_LAYOUT layers="+str(len(entries))+" history="+str(len(config.get("history",[]))))
 
