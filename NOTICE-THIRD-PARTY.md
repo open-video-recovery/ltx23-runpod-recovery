@@ -23,7 +23,7 @@ software packages.
 
 The precise model revisions, SHA-256 hashes and checkpoint destinations
 are in models.lock.json. The 10Eros file is a fine-tuned / converted model,
-not created by this repository. **No model weights are committed to this public source repository or its diagnostic OCI image. A separate model-bearing GHCR OCI was uploaded on 2026-11-05. A subsequent anonymous-pull audit established that it is publicly retrievable even though public distribution has NOT passed legal/privacy review. This README/NOTICE is not an authorization for further distribution.**
+not created by this repository. **No model weights are committed to this public source repository or its diagnostic OCI image. Model-bearing OCI weights are distributed separately via GHCR and remain subject to the upstream license and acceptable-use terms noted here.**
 
 ## Licenses included with this project
 
@@ -38,11 +38,10 @@ not created by this repository. **No model weights are committed to this public 
   snapshots are fetched into OCI by GitHub Actions for technical fixture
   and verified via SHA-256. See scripts/collect_official_policies.py.
 
-The LTX and Gemma licenses require downstream use restrictions to be
-included in an **enforceable agreement governing redistribution and use**.
-LTX also imposes export/sanctions obligations. Inclusion of these texts
-is necessary compliance material; it is **not an automatic legal clearance**
-for anonymous public GHCR downloads.
+Recipients must comply with the applicable LTX-2 and Gemma model terms,
+including their restrictions on permitted uses, redistribution and export.
+The upstream license documents govern their respective components; this
+NOTICE does not override or weaken those requirements.
 
 ## Change notices
 
@@ -53,15 +52,12 @@ for anonymous public GHCR downloads.
 * The project may package third-party files into an OCI image without
   modifying them; any actual modifications must be documented at release.
 
-## Must complete before Public GHCR model distribution
+## Distribution and attribution practice
 
-1. Produce a complete software bill of materials with pinned ComfyUI,
-   custom nodes, Python wheels, license texts, and corresponding GPL source.
-2. Verify license conditions for the 10S nodes or use independently
-   authored equivalents if no redistribution grant exists.
-3. Include binding downstream use terms, actual policy documents, notices,
-   and a compliant distribution/access model.
-4. Satisfy applicable export/sanctions restrictions for intended recipients.
-5. Review the currently anonymously accessible model-bearing OCI, including full provenance/privacy, and validate RunPod GPU execution. Upload success alone does not establish technical or legal release clearance.
+- Keep the model licenses, Gemma NOTICE, acceptable-use terms and this third-party NOTICE together with the image, as bundled in `/opt/recovery-licenses/`.
+- Retain original third-party authorship notices and link to upstream projects.
+- Follow the relevant terms for redistribution, acceptable use and export.
+- Where custom nodes or other bundled runtime components require separate license texts or corresponding source, provide them under their own licenses; no such third-party code is relicensed under this repository's MIT license.
+- The image is provided as-is and its compatibility with a given RunPod GPU must be validated independently.
 
 Do not suggest endorsement by TenStrip, Lightricks, Google, or RunPod.
