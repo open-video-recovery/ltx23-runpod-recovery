@@ -27,11 +27,14 @@ small{opacity:.8}#status{min-height:1.4em}
 <div id="results" hidden>
 <div class="cardline">
 <div class="card">延べ匿名セッション<b id="sessions"></b></div>
-<div class="card">操作セッション<b id="active"></b></div>
+<div class="card">訪問のみのセッション<b id="only"></b></div>
+<div class="card">JSON作成セッション<b id="creator"></b></div>
+<div class="card">JSON保存セッション<b id="saver"></b></div>
 <div class="card">JSON作成回数<b id="created"></b></div>
 <div class="card">JSON保存操作回数<b id="saved"></b></div>
 </div>
-<p><small>「セッション」は同一タブ・同一閲覧期間の推定単位で、個人のユニーク人数ではありません。再訪は任意同意した仮名IDのみ。月別セッションは日別数の合計で、月内の重複は除外しません。すべて日本時間です。</small></p>
+<p><small>「セッション」は同一タブ・同一閲覧期間の推定単位で、個人のユニーク人数ではありません。再訪は任意同意した仮名IDのみ。週別・月別セッションは日別数の合計で、月内の重複は除外しません。すべて日本時間です。</small></p>
+<h2>週別（月曜日開始）</h2><div class="tablebox"><table><thead id="weeklyHead"></thead><tbody id="weekly"></tbody></table></div>
 <h2>月別</h2><div class="tablebox"><table><thead id="monthlyHead"></thead><tbody id="monthly"></tbody></table></div>
 <h2>日別</h2><div class="tablebox"><table><thead id="dailyHead"></thead><tbody id="daily"></tbody></table></div>
 </div>
@@ -39,6 +42,7 @@ small{opacity:.8}#status{min-height:1.4em}
 'use strict';
 const $=id=>document.getElementById(id);
 const fields=[['sessions','セッション'],['activeSessions','操作セッション'],
+  ['createdSessions','JSON作成セッション'],['savedSessions','JSON保存セッション'],
   ['returningOptIn','再訪(任意同意)'],
   ['json_created','JSON作成'],['json_copied','JSONコピー'],['json_saved','JSON保存'],
   ['endpoint_created','Endpoint作成'],['video_started','動画開始'],
@@ -46,7 +50,7 @@ const fields=[['sessions','セッション'],['activeSessions','操作セッシ�
 function renderTable(headId,bodyId,rows,dateField){
   $(headId).replaceChildren();$(bodyId).replaceChildren();
   const tr=document.createElement('tr');
-  for(const title of [dateField==='day'?'日付':'月',...fields.map(x=>x[1])]){
+  for(const title of [dateField==='day'?'日付':dateField==='week'?'週開始':'月',...fields.map(x=>x[1])]){
     const th=document.createElement('th');th.textContent=title;tr.append(th);
   }$(headId).append(tr);
   for(const r of [...rows].reverse()){
@@ -66,9 +70,12 @@ $('form').addEventListener('submit',async e=>{
     if(!res.ok)throw Error(data.error||'統計を取得できません');
     const sum=(k)=>data.daily.reduce((v,r)=>v+(r[k]??r.events?.[k]??0),0);
     $('sessions').textContent=sum('sessions');
-    $('active').textContent=sum('activeSessions');
+    $('only').textContent=sum('sessions')-sum('activeSessions');
+    $('creator').textContent=sum('createdSessions');
+    $('saver').textContent=sum('savedSessions');
     $('created').textContent=sum('json_created');
     $('saved').textContent=sum('json_saved');
+    renderTable('weeklyHead','weekly',data.weekly,'week');
     renderTable('monthlyHead','monthly',data.monthly,'month');
     renderTable('dailyHead','daily',data.daily,'day');
     $('status').textContent='更新しました。';$('results').hidden=false;
