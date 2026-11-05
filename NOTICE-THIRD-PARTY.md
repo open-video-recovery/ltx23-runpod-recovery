@@ -8,7 +8,7 @@ copyrightable recovery-kit code**. It does **not** relicense any of the
 following third-party models, ComfyUI, custom nodes, converted files or
 software packages.
 
-## Models to be included in a future video-enabled OCI
+## Models in the private model-bearing GHCR OCI
 
 | Component | Upstream model source | License / terms |
 | --- | --- | --- |
@@ -23,8 +23,7 @@ software packages.
 
 The precise model revisions, SHA-256 hashes and checkpoint destinations
 are in models.lock.json. The 10Eros file is a fine-tuned / converted model,
-not created by this repository. **No proprietary weights are currently
-present in the public source repository or its diagnostic OCI image.**
+not created by this repository. **No model weights are committed to this public source repository or its diagnostic OCI image. The separate model-bearing GHCR OCI was published on 2026-11-05, but has not been cleared for public distribution.**
 
 ## Licenses included with this project
 
@@ -47,14 +46,14 @@ for anonymous public GHCR downloads.
 
 ## Change notices
 
-* New RunPod Worker and diagnostic scripts are independent recovery-kit code.
+* Diagnostic scripts are independently authored recovery-kit code. The full OCI preserves the original legacy third-party Python Worker and Workflow bytes. Their respective redistribution terms and required source/attributions have not been conclusively verified.
 * The intended full OCI applies upstream model conversions already
   distributed by publishers; this project does not claim to have authored
   any checkpoint, conversion, distillation or quantization.
 * The project may package third-party files into an OCI image without
   modifying them; any actual modifications must be documented at release.
 
-## Must complete before real model GHCR release
+## Must complete before Public GHCR model distribution
 
 1. Produce a complete software bill of materials with pinned ComfyUI,
    custom nodes, Python wheels, license texts, and corresponding GPL source.
@@ -63,6 +62,6 @@ for anonymous public GHCR downloads.
 3. Include binding downstream use terms, actual policy documents, notices,
    and a compliant distribution/access model.
 4. Satisfy applicable export/sanctions restrictions for intended recipients.
-5. Audit a full model-bearing OCI, RunPod GPU execution and playable MP4.
+5. Review the actual private model-bearing OCI (digest `sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5`), full privacy/provenance and RunPod GPU execution; GHCR upload success does not establish generation correctness.
 
 Do not suggest endorsement by TenStrip, Lightricks, Google, or RunPod.
