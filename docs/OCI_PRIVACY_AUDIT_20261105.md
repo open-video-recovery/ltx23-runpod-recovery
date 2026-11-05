@@ -20,7 +20,7 @@
 - **第7レイヤーは約22.08GiB**で、GHCRの1レイヤー10GB制限を超える。単なるレジストリ間コピーやライセンスレイヤーの追加ではGHCR登録不可。中身を変更せずにレイヤーサイズの再分割が必要。
 - ライセンスを追加するだけでは、OCI config内の元のラベル・履歴の値は変更されない。匿名性が重要なら**configのラベル・履歴も確認／整理**した最終イメージを作る必要がある。
 - GitHubリポジトリの過去コミットに書かれた元Docker Hub参照先は、後から現行ファイルを変更しても履歴に残る。OCIそのもののメタデータとは別の情報公開経路。
-- 公開Workflowの現行版は、元Docker Hubの参照先を **Actions Repository variable `OCI_SOURCE_IMAGE`** から読むよう変更した。トークン・Secretは不要。
+- 公開Workflowの現行版は、元Docker Hubの参照先を **Actions Repository Secret `OCI_SOURCE_IMAGE`** から読むよう変更した。Docker Hub認証トークンは不要。
 
 ## 範囲と限界
 
