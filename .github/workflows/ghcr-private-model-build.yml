@@ -37,19 +37,20 @@ jobs:
           test ! -e "$BUILD_ROOT/context"
       - name: Install HF downloader (build prerequisites only)
         run: |
-          python3 -m pip install --user --disable-pip-version-check 'huggingface_hub>=0.30,<2'
+          python3 -m venv "$BUILD_ROOT/venv"
+          "$BUILD_ROOT/venv/bin/python" -m pip install --disable-pip-version-check 'huggingface_hub>=0.30,<2'
       - name: Download four original-publisher models, verify full SHA256, split into OCI layers
         run: |
           set -euo pipefail
-          python3 scripts/download_models.py --model-root "$BUILD_ROOT/models"
-          python3 scripts/prepare_embedded_bundle.py \
+          "$BUILD_ROOT/venv/bin/python" scripts/download_models.py --model-root "$BUILD_ROOT/models"
+          "$BUILD_ROOT/venv/bin/python" scripts/prepare_embedded_bundle.py \
             --model-root "$BUILD_ROOT/models" \
             --out "$BUILD_ROOT/context" \
             --chunk-bytes 2147483648
       - name: Generate full OCI Dockerfile (NOT a video-ready release)
         run: |
           set -euo pipefail
-          python3 scripts/render_embedded_dockerfile.py \
+          "$BUILD_ROOT/venv/bin/python" scripts/render_embedded_dockerfile.py \
             --staging "$BUILD_ROOT/context" \
             --project "$GITHUB_WORKSPACE" \
             --test-only-no-workflow
