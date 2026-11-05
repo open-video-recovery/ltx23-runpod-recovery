@@ -18,6 +18,15 @@
 - [全4モデル用の分割OCIステージング・ローカル復元・Dockerfile生成のCPU検証](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41941448557) 成功。
 - 第三者モデルのライセンス、出典、変更点・Notice一覧を [NOTICE-THIRD-PARTY.md](../NOTICE-THIRD-PARTY.md) に記録。
 
+## 2026-11-05 GHCR build-only priority
+
+- Automated CPU tests, diagnostics and fake-OCI workflows have been switched to **manual-only**. No scheduled/push-triggered test workflows are needed for future builds.
+- **GHCR engine-base build** (CUDA-enabled PyTorch + pinned ComfyUI + RunPod, **no model weights**) is started via [GitHub Actions run 41945520845](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41945520845). Consult that run for its final result. Do not claim the tag/digest is published until the build-and-push step succeeds.
+- **Real four-model OCI private candidate** has a build-only workflow: [.github/workflows/ghcr-private-model-build.yml](../.github/workflows/ghcr-private-model-build.yml). It requires a self-hosted runner labeled `ltx-oci-large` with >=200GiB **free** disk (250GiB recommended), and `HF_TOKEN` if a publisher requires authentication. **No such runner has been verified for the anonymous account; this workflow is not executed.**
+- The private candidate targets a new separate GHCR package `ghcr.io/open-video-recovery/ltx23-model-oci-candidate`. GitHub documentation says first-published packages default to **private**, independent of a public source repository's visibility. Confirm package visibility before any wider sharing.
+- Model-inclusive candidate can package chunks before a complete generation workflow is ready, but cannot generate videos until Workflow/custom nodes are available.
+- **Legal approval for public model-weight distribution remains pending** and is separately tracked in `legal/public-ghcr-release-gates.json`.
+
 ## まだ完了していないこと
 
 1. 正規配布元から実モデル約42GBをクラウドビルダーに取得し、GHCRへフルモデルOCIをビルド・Push/Pullすること。GitHubの一般Runnerはディスク14GBなので使えない。
