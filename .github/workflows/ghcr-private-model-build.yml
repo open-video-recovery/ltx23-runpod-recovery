@@ -1,0 +1,81 @@
+name: GHCR four-model OCI build only (private candidate; NO TESTS)
+
+# No CPU tests, model-generation tests, or RunPod GPU tests are executed here.
+# Requires a dedicated Linux AMD64 self-hosted runner with >=250GB FREE SSD.
+# This workflow cannot run on an ordinary 14GB GitHub-hosted runner.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ghcr-private-four-model-oci
+  cancel-in-progress: false
+
+jobs:
+  build-model-bundle:
+    runs-on: [self-hosted, linux, x64, ltx-oci-large]
+    timeout-minutes: 360
+    env:
+      BUILD_ROOT: /mnt/ltx23-oci-build
+      HF_HOME: /mnt/ltx23-oci-build/hf-cache
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      IMAGE: ghcr.io/open-video-recovery/ltx23-model-oci-candidate:unverified-${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require sufficient disk for 42GB checkpoints, staging and OCI
+        run: |
+          set -euo pipefail
+          mkdir -p "$BUILD_ROOT"
+          free_gib=$(df -BG --output=avail "$BUILD_ROOT" | tail -1 | tr -dc '0-9')
+          if [ "$free_gib" -lt 200 ]; then
+            echo "At least 200 GiB FREE disk is required; available: $free_gib GiB" >&2
+            exit 1
+          fi
+          test ! -e "$BUILD_ROOT/context"
+      - name: Install HF downloader (build prerequisites only)
+        run: |
+          python3 -m venv "$BUILD_ROOT/venv"
+          "$BUILD_ROOT/venv/bin/python" -m pip install --disable-pip-version-check 'huggingface_hub>=0.30,<2'
+      - name: Download four original-publisher models, verify full SHA256, split into OCI layers
+        run: |
+          set -euo pipefail
+          "$BUILD_ROOT/venv/bin/python" scripts/download_models.py --model-root "$BUILD_ROOT/models"
+          "$BUILD_ROOT/venv/bin/python" scripts/prepare_embedded_bundle.py \
+            --model-root "$BUILD_ROOT/models" \
+            --out "$BUILD_ROOT/context" \
+            --chunk-bytes 2147483648
+      - name: Generate full OCI Dockerfile (NOT a video-ready release)
+        run: |
+          set -euo pipefail
+          "$BUILD_ROOT/venv/bin/python" scripts/render_embedded_dockerfile.py \
+            --staging "$BUILD_ROOT/context" \
+            --project "$GITHUB_WORKSPACE" \
+            --test-only-no-workflow
+          echo "Image is an incomplete candidate: no audited workflow/custom nodes" >> "$GITHUB_STEP_SUMMARY"
+      - name: Authenticate to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and PUSH to separate PRIVATE candidate package (NO TESTS)
+        uses: docker/build-push-action@v6
+        id: push
+        with:
+          context: /mnt/ltx23-oci-build/context
+          file: /mnt/ltx23-oci-build/context/Dockerfile.embedded-candidate
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.IMAGE }}
+          provenance: false
+          sbom: false
+      - name: Record digest, no pull or generation tests
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          test -n "$DIGEST"
+          echo "Private candidate OCI: $IMAGE@$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          echo "NOT a public package, NOT a working RunPod video endpoint." >> "$GITHUB_STEP_SUMMARY"
