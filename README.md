@@ -1,75 +1,45 @@
-# LTX 2.3 + 10Eros v1.4 | RunPod Serverless
+# LTX 2.3 + 10Eros v1.4 — RunPod Serverless
 
-**画像1枚から動画（MP4）を生成するための、モデル・Worker・Workflow同梱のコンテナです。** Dockerのインストールやモデルの手動ダウンロードは不要。RunPodのServerless Endpointから利用できます。
+画像1枚と文章から動画を作るためのRunPod Serverless向けプロジェクトです。
 
-## 動作確認
+> **現在、新しい独立コンテナを準備中です。** 以前のコンテナには旧実装をそのまま含むレイヤーがあるため、現時点ではそのイメージを公開用の後継として案内していません。新しいイメージが掲載されるまでは、以下の手順だけで動画生成を開始できません。
 
-- **2026年11月5日、RunPodの24GB GPU（RTX 4090系）で画像→MP4生成に成功。**
-- 出力：**640 × 960 / 24fps / 約5.04秒 / H.264 MP4（121フレーム）**。FFmpegで全フレームのデコードに成功しています。
-- モデル本体・Worker・Workflowを含む22レイヤーは、実機確認したイメージから**変更していません**。最新リリースではライセンス／NOTICEとOCIメタデータのみ更新しています。
-- 映像の仕上がりの良し悪しや、すべてのプロンプトでの動作を保証するものではありません。
+## 用意するもの
 
-## 1. コンテナイメージ
+- [RunPod](https://www.runpod.io/) のアカウントとGPU利用料金
+- 入力する画像1枚（JPEG、PNGなど）
+- 動画の指示文
 
-以下をRunPodのContainer Imageに指定してください。**公開GHCRから匿名取得可能**で、Docker Hubアカウントは不要です。
+**Docker、Python、コマンド操作、Hugging Faceからの手動ダウンロードは不要**になる構成を目指しています。
 
-```text
-ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:cb6dc2a1dac7945f154c3ed48bd3493d921fe3bbb430a251db954f6596780082
-```
+## 画像からRunPod用JSONを作る
 
-## 2. RunPod Serverlessの設定
+このリポジトリの [JSON作成補助HTML](index.html) をダウンロードし、ブラウザで開いてください。
 
-[RunPod](https://www.runpod.io/) → Serverless → New Endpoint → **Import from Docker Registry**（画面表記は変わる場合があります）。上のイメージを設定し、以下を目安にしてください。
+1. 「元画像」で画像を選択します。
+2. 動画の指示文を入力します。
+3. 「JSONを作成」を押し、「JSONをコピー」を押します。
+4. 新コンテナが公開されたら、RunPodの **Endpoint → Requests** に貼り付けて実行します。
 
-| 設定 | 24GBでの検証構成 |
-| --- | --- |
-| GPU | RTX 4090 / 24GB（ADA_24） |
-| Container Disk | **150 GB** |
-| Type | Queue |
-| Active / Min Workers | **0** |
-| Max Workers | **1** |
-| Idle Timeout | **5秒** |
+このHTMLはブラウザの中で画像を変換するだけです。**画像・指示文・APIキーを外部送信せず、アクセス解析も入れていません。** RunPodへ直接リクエストは送りません。
 
-必要な環境変数（実機検証時と同じ値）：
+## RunPod側の操作（新コンテナ公開後）
 
-```env
-HF_HUB_OFFLINE=1
-RIRUKA_MODEL=ltx23
-WORKER_BUILD=i2vltx-2.3-quality-profiles-v1
-```
+1. RunPodにログインして **Serverless → New Endpoint → Import from Docker Registry** を開きます。
+2. ここに後日掲載する公開コンテナイメージを **Container Image** に貼り付けます。
+3. **Endpoint Type：Queue**、GPUは **24GBクラス**、Container Diskは **150GBを目安**に設定します。
+4. **Active / Min Workers：0、Max Workers：1** にします。
+5. **Deploy Endpoint** を押します。
+6. **Requests** で、上記HTMLが作ったJSONを実行します。
 
-**注意：イメージは約36.5GiBと大きいです。** 初回はダウンロードとモデル展開で長時間初期化することがあります。実機テストでは最初のジョブが完了するまで約12分でした（環境により変動）。RunPodのGPU料金が発生します。
+**Environment Variables（環境変数）：新しい独立コンテナでは、利用者による追加設定を不要にする方針です。** ここに古い内部設定名を入力しないでください。将来、追加設定が必須となった場合のみ説明を更新します。
 
-## 3. 画像→動画のテスト
+> GPUは従量課金です。初回起動にはコンテナの取得と準備に時間がかかる場合があります。使わなくなったEndpointは削除してください。最終的なGPU・ディスク条件は新イメージ確定時に更新します。
 
-RunPodのEndpoint → **Requests** から、次のJSONを実行します。`JPEG_BASE64`を入力用JPEG画像のBase64文字列（`data:image/jpeg;base64,` の接頭辞なし）に置き換えてください。
+## 公開コンテナ
 
-```json
-{
-  "input": {
-    "mode": "i2v",
-    "model_version": "ltx23",
-    "quality_preset": "balanced",
-    "width": 640,
-    "height": 960,
-    "fps": 24,
-    "seconds": 5,
-    "seed": 1234567,
-    "distilled_strength": 0.5,
-    "first_stage_strength": 0.85,
-    "refine_stage_strength": 1.0,
-    "prompt": "A gentle camera pan across a colorful geometric scene.",
-    "files": [{"name": "input.jpg", "data": "JPEG_BASE64"}]
-  }
-}
-```
+**独立版のイメージが完成するまで未掲載です。** 古いWorker/Workflowを残したコンテナへのリンクは掲載しません。
 
-ジョブが `COMPLETED` になったら出力動画を確認してください。**料金を抑えるにはMin Workers=0を維持**し、不要になったEndpointは削除してください。
+## 利用条件・クレジット
 
-## 利用規約・作者へのクレジット
-
-LTX-2、10Eros、Gemma、ComfyUIなどのモデルとソフトウェアにはそれぞれの上流ライセンス・利用制限が適用されます。ライセンス全文、Gemma NOTICE、LTX AUP、Gemma禁止用途ポリシーなどはOCI内の `/opt/recovery-licenses/` に同梱されています。
-
-詳しくは [第三者ライセンスと出典](NOTICE-THIRD-PARTY.md) をご確認ください。元のモデル・ソフトウェアの作者と、この再パッケージ提供者は別主体です。作者による推奨・保証を意味しません。
-
-[技術的な検証範囲と更新履歴](docs/STATUS.md)
+このリポジトリに含まれるオリジナルのコードと、同梱するモデル・コンポーネントの権利は別です。LTX、10Eros、Gemma、ComfyUIなどには個別の上流利用条件が適用されます。詳しくは [第三者ライセンスと出典](NOTICE-THIRD-PARTY.md) を参照してください。
