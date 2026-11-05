@@ -22,3 +22,13 @@
 !legal-snapshot/
 !legal-snapshot/**
 !scripts/verify_legal_snapshot.py
+
+# Build-only ComfyUI / RunPod engine base
+!Dockerfile.ghcr-engine
+!runtime/worker.py
+!runtime/start.sh
+!runtime/restore_model_bundle.py
+!models.lock.json
+!workflows/
+!workflows/README.md
+!NOTICE-THIRD-PARTY.md
