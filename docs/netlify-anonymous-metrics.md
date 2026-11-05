@@ -11,7 +11,7 @@
 
 ## 実装済み（本番展開ではない）
 - `telemetry.js`: 外部トラッカー無し、同一オリジンのみ、送信障害は無視。
-- `track.mjs`: 許可リスト型、数百バイト制限、Origin一致、Netlify FunctionsのIPベースレート制限。
+- `track.mjs`: 許可リスト型、数百バイト制限、公開サイトOrigin固定（Deploy Previewは本番集計へ記録しない）、Netlify FunctionsのIPベースレート制限。
 - `stats.mjs`: 管理者トークン認証、30/90日の日別・週別・月別。
 - `prune-metrics.mjs`: 日次90日超削除（UTC 03:00、JST 12:00）。
 - `admin-stats.html`: トークンをURLやlocalStorageへ保存しない管理者画面。
@@ -35,8 +35,9 @@ UUIDを保存し、チェックを外すと削除。本人の識別や厳密なU
 ## 展開準備
 1. Netlify側で現在のDeploy履歴/公開HTML/Build設定/Git連携の有無を確認。
    Netlify標準Analytics導入状況、履歴保持、Function/Blobs使用量も確認。
-2. リポジトリの別ブランチをNetlifyのDeploy Previewで動作確認。
-3. **Netlify Project configuration → Environment variables** へ、
+2. リポジトリの別ブランチをNetlifyのDeploy PreviewでUIとJSONの動作確認。Previewの計測は本番データ混入防止のため意図的に停止する。
+3. 計測する公開Originは既定で `https://friendly-elf-6cfdcf.netlify.app` に固定。カスタムドメインに変更する場合は `telemetry.js` のHOST_OKとFunctionsの `ANALYTICS_ALLOWED_ORIGIN` を同じ値に設定して再ビルドする。
+4. **Netlify Project configuration → Environment variables** へ、
    `ANALYTICS_ADMIN_TOKEN` に乱数で生成した**32文字以上**の十分に長い秘密値を登録。
    `netlify.toml` に秘密値を記載しない。SecretはFunctionsだけで使用し公開HTMLに混ぜない。
    未設定ならイベントを記録せず、管理画面は503で閉じる（安全側に失敗）。
