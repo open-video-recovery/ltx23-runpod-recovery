@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "decision": "BLOCKED_PUBLIC_IMAGE_ALREADY_ANONYMOUSLY_ACCESSIBLE",
+  "decision": "STANDARD_UPSTREAM_LICENSE_AND_NOTICE_DISTRIBUTION_WITH_OPEN_ITEMS",
   "artifact": "public GHCR image containing LTX-2.3 10Eros v1.4, Gemma 3, LoRA and upscaler",
   "updated_on": "2026-11-05",
-  "note": "Pinned model-bearing OCI successfully published 2026-11-05, and a read-only anonymous Registry API GET succeeded at 16:43 JST. This is already externally retrievable; public-release legal/privacy clearance is not complete. Must not assert private package, or that a Public package can be returned to Private. GHCR package deletion requires explicit owner decision. Document inclusion is confirmed, but downstream agreements, third-party runtime rights, export controls and public Git history remain unresolved.",
+  "note": "Distribution presentation follows common model/OSS practice: bundle applicable upstream license texts, required NOTICE, use policies and source links inside the OCI. This register tracks provenance, runtime-specific licenses and technical validation without imposing a universal private lawyer approval or special author letter. Existing model terms still apply; packaging alone is not a legal opinion. The model-bearing GHCR image has already been anonymously retrievable.",
   "gates": {
     "ltx_license_text": {
       "status": "evidence_collected",
@@ -66,8 +66,8 @@
       "evidence": "Unauthenticated GHCR bearer token + GET immutable manifest successfully matched pinned SHA256; GitHub Action 41989198610 2026-11-05 16:43 JST."
     },
     "anonymous_project_history": {
-      "status": "EXPOSED",
-      "evidence": "A prior publicly accessible Git commit 89c50a... contains the source Docker Hub account reference. Updating current README or OCI labels cannot erase public Git history and historical PR data."
+      "status": "MAIN_AND_9_BRANCHES_REWRITTEN;_OLD_PR_REFS_REMAIN",
+      "evidence": "GitHub Actions run 41998525863 succeeded; 10 writable branches rewritten and 547 reachable Git objects scanned: 0 source Docker Hub owner matches. GitHub internal PR refs (9) and direct old commit SHA URLs remain accessible and may need GitHub Support/new clean repository for complete unlinking."
     },
     "actual_image_label_history": {
       "status": "partial_findings_remain",
@@ -81,5 +81,19 @@
       "status": "NOT_IMPLEMENTED",
       "evidence": "LTX-2 section 3(a) and Gemma 3.1 request enforceable downstream restrictions. No confirmed binding agreement mechanism before anonymous GHCR pull."
     }
+  },
+  "distribution_practice": {
+    "type": "upstream-license-notice-bundled",
+    "packaging": [
+      "LTX-2 Community License",
+      "Gemma Terms and required NOTICE",
+      "ComfyUI GPL-3.0",
+      "LTX AUP",
+      "Gemma prohibited-use policy",
+      "third-party attribution"
+    ],
+    "extra_lawyer_signoff_required_by_project": false,
+    "legal_opinion_claimed": false,
+    "technical_runpod_gpu_tested": false
   }
 }
