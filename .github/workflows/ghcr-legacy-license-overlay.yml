@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     env:
-      SOURCE_IMAGE: docker.io/astkpin/i2vltx:ltx23-quality-v1
+      SOURCE_IMAGE: ${{ vars.OCI_SOURCE_IMAGE }}
       DEST_IMAGE: ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14
     steps:
       - uses: actions/checkout@v4
