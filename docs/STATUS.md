@@ -2,6 +2,16 @@
 
 更新日：2026-11-05。**モデル同梱の動画生成用RunPod Endpointはまだ完成していません。**
 
+## 2026-11-05 15:08 JST：GHCRモデル同梱OCI登録成功
+
+- [GitHub Actions run 41976344090](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41976344090) が **success**。
+- 登録イメージ：`ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14`
+- 確認済み固定Digest：`sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5`
+- 元OCIの15レイヤーを基に、22GiB超の第7レイヤーを8分割し、元圧縮データのSHA-256照合を実施。追加の利用条件・復元起動スクリプトも同梱。
+- **まだ未確認**：GHCR PackageのPublic/Private設定と匿名Pull、RunPod Serverless実起動、GPUによる実動画生成、Endpointのイメージ差し替え。
+- 大型の元レイヤーはコンテナ起動後に復元するため、ディスク容量・コールドスタート時間に影響します。正常な動画生成は未実証です。
+- 既存文書中の「モデル同梱OCI未構築」「GHCR未登録」は、過去の状態です。現時点では上記の実登録結果を優先します。
+
 ## 2026-11-05 最新方針（従来の再構築案より優先）
 
 **既存モデル同梱OCIを再利用し、ライセンス文書の追加レイヤーだけを重ねてGHCRへ登録します。**
