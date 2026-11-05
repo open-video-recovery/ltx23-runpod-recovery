@@ -124,12 +124,13 @@ ghcr.io/open-video-recovery/ltx23-runpod-recovery:diagnostics
 
 10Eros作者は [Hugging Face discussion #37](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37) でLTX-2ライセンスの適用を説明しています。利用条件には生成用途や下流配布に関する制限があります。**適切な利用とモデル再配布は別問題**です。利用者は規約と地域の法令を守る必要があります。
 
-公開モデル入りGHCRには、第三者の公開事例と同様に、モデル出典・全規約・必須Notice・変更点・使用制限を用意します。ただし**「他も公開している」ことだけで、匿名Pullが契約・輸出規制条件に適合したことにはなりません**。現状の公開可否判定は [こちら](legal/public-ghcr-release-gates.json)。必要な条件を満たすまでは実モデルの一般公開を行いません。
+公開モデル入りGHCRには、第三者の公開事例と同様に、モデル出典・全規約・必須Notice・変更点・使用制限を用意します。ただし**「他も公開している」ことだけで、匿名Pullが契約・輸出規制条件に適合したことにはなりません**。一方、規約上の条件を守る再配布に個別の特別許諾が常に必要とも書かれていません。現状の公開可否判定は [こちら](legal/public-ghcr-release-gates.json)。必要な条件を満たすまでは実モデルの一般公開を行いません。
 
 ## D. 開発・公開状況（専門家向け）
 
 - [実証済み項目・未完了項目](docs/STATUS.md)
 - [GHCR / Hugging Face / Docker Hub の公開事例比較](docs/REDISTRIBUTION_PRECEDENTS_20261105.md)
+- [モデル別の出典・権利表示・変更点](NOTICE-THIRD-PARTY.md)
 - [ライセンスと配布義務の監査](docs/LEGAL_AUDIT.md)
 - [配布判断の日本語説明](docs/DISTRIBUTION_POLICY_JA.md)
 - [権利者への照会文案](docs/RIGHTSHOLDER_INQUIRIES.md)
