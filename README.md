@@ -26,7 +26,10 @@
 | --- | --- | --- |
 | GHCR「release」完成イメージ | 目標：本番RunPod Endpoint | **未公開・未検証。まだ指定しない** |
 | GHCR「diagnostics」 | RunPodがイメージを実行できるか確かめる小型Worker | **作れない（接続診断だけ）** |
+| GHCR「engine-base」 | **実際にGHCRビルド・Push成功したComfyUI/RunPodベース**（2026-11-05） | **作れない（モデル・Workflowは未同梱）** |
 | GHCR「oci-contract」 | 分割された模擬モデル＋法務書類の同梱を確認する技術試験 | **作れない（RunPod用Workerではない）** |
+
+**ベースイメージの固定Digest**：`sha256:6eddba26842c6f6d02e9f07ef3a409d11eee3b54425e5b7890b1666e1e3aa07e`（[GitHub ActionsでPush成功](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41945520845)）。これは**動画生成用ではありません**。
 
 **正規の動画生成用イメージ名・digest・JSONテストは、実GPU生成後に確定します。** 他サイトから「動くかもしれない」イメージを適当に指定しないでください。
 
