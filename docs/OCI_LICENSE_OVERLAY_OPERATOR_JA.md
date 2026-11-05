@@ -1,35 +1,35 @@
-# 公開者向け：既存OCIにライセンスを追加してGHCRへ登録
+# 公開者向け：既存OCI → ライセンス同梱GHCR
 
-初心者は[README](../README.md)だけを読んでください。本手順は公開者向けです。
+初心者は[README](../README.md)をご覧ください。
 
-## 一度だけの設定
+## 公開の方法
 
-1. [GitHub ActionsのSecrets](https://github.com/open-video-recovery/ltx23-runpod-recovery/settings/secrets/actions) を開く。
-2. **Repository secret** `OCI_SOURCE_IMAGE` に所有するPublic Docker Hubイメージの参照先（タグまたはDigest）を設定する。公開イメージ名ですが、匿名性のためSecretで渡します。Docker Hubの認証トークンは不要です。GitHubの公開ソースに元のアカウント名を直書きしないための設定です。
-3. Docker Hub側のイメージが匿名Pull可能であることを確認してください。
+GitHub Actionsは**自動起動**します。モデルの再ダウンロードやMegane6でのDocker Build、手動のRun workflow、CPU/GPUテストは不要です。
 
-## GHCRへ登録
+1. GitHub ActionsのRepository Secret `OCI_SOURCE_IMAGE` に、所有するPublic Docker HubのLTX 2.3 / 10Eros v1.4イメージ名を一度だけ登録します。Docker Hubの認証トークンは不要です。
+2. 公開WorkflowのファイルまたはOCI再構成スクリプトが `main` に更新されると、[GHCR公開Actions](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/workflows/ghcr-legacy-license-overlay.yml) が自動起動します。
+3. 完了したActions Summaryの**GHCRイメージとDigest**をRunPodのContainer Imageへ指定します。モデルのライセンス文書もOCI内に同梱されます。
 
-1. [GitHub Actions / GHCR publish existing OCI + license overlay](../.github/workflows/ghcr-legacy-license-overlay.yml)を開く。
-2. **Run workflow** をクリック。
-3. Workflowは、元のOCIマニフェストを読み、LTX・Gemma・ComfyUIのライセンス文書、LTX AUP、Gemma利用禁止事項を1つの追加レイヤーにまとめます。
-4. **元のWorker・Python・Workflow・モデルのレイヤーは再構築せず**、GHCRへ送信します。テストジョブはありません。
-5. ActionsのSummaryに出力された**実際の固定Digest**を確認します。
+保存先：`ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14`
 
-保存先：ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14
+## GHCRの10GBレイヤー制限
 
-**LTX・Gemma・10Erosは既存ライセンスに基づく条件付き再配布とし、特別許諾待ちにはしません。** 追加レイヤーに必要な規約・Noticeを同梱します。GHCRをPublicにする前に、元Worker・Workflowなどモデル以外の権利と、利用条件・配布先の遵守を別途確認してください。
+元OCIは15レイヤーのうち1つが約22GiBで、そのままではGHCRへ転送できません。新しい公開スクリプトは以下を行います。
 
-### GHCRの1レイヤー10GB上限
+- 小さい14レイヤーは**元の圧縮バイトとSHA256を維持**してコピーする
+- 約22GiBの圧縮済み元レイヤーを3GB以下の分割ファイルにして、それぞれを小さなOCIレイヤーに格納する
+- 追加レイヤーにライセンス、Notice、公式AUP・禁止事項および起動用の復元スクリプトを格納する
+- RunPodコンテナの初回起動時に元の圧縮済みレイヤーを再結合・展開してから、**既存Workerを変更せず実行する**
 
-元OCIはDocker Hubで合計約39GBのレイヤーを持っています。GHCRは**1レイヤー10GB未満**という制限があり、複数レイヤーの合計容量とは異なります。
+モデルファイルや既存Python・Workflowのバイトを改変しませんが、**OCIのレイヤー構造と起動スクリプトは変更**します。したがって、元イメージと起動時間・ディスク使用量は同じではありません。RunPodのコンテナDiskは120GBを目安に設定してください。
 
-Workflowはビルド前に元OCIのレイヤーサイズを読み取ります。1つでも上限を超える場合は、そのレイヤーを変更せず移す方法ではGHCRに登録できないため、**その時点で停止**します。ライセンス追加レイヤーが問題なのではありません。モデルを再ダウンロードしたり、テストを実行したりはしません。
+## 匿名性・公開設定
 
-### RunPodで利用
+- Source名はSecretで渡します。公開Workflowの現行ファイルに、元のDocker Hubアカウント名は記載しません。
+- 元OCIのレイヤー、ビルド履歴・ラベルの調査記録：[OCIメタデータ監査](OCI_PRIVACY_AUDIT_20261105.md)。
+- 元の独自プロジェクト名は新しいイメージの設定情報から整理します。モデルの著作者表示・配布規約はNoticeに保持します。
+- 公開Gitの**過去コミットやActionsログ**まで完全に匿名化したと保証するものではありません。
+- LTX・Gemma・10Erosは既存ライセンスに基づく条件付き再配布です。モデル以外のWorker・Workflow、下流利用条件も順守が必要です。
+- GHCRパッケージの可視性はGitHub側で確認し、公開可能になってからPublicへ変更します。モデル同梱GHCRのPush成功とPublic設定は別です。
 
-GHCRがPrivateならRunPodのRegistry Authenticationに読み取り専用の認証を登録します。その後、EndpointのContainer Image欄へ**GHCRの固定Digest**を貼ります。新規Endpointまたは既存Endpointの設定画面からイメージを指定できます。
-
-GPU生成の結果を確認していないイメージを「実機生成確認済み」と表示しないでください。
-
-[公式GHCRドキュメント](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+移行完了後、不要になった `OCI_SOURCE_IMAGE` Secretは削除可能です。
