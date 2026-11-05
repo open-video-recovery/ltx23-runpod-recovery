@@ -10,7 +10,8 @@ export default async function handler(request) {
   const secret = process.env.ANALYTICS_ADMIN_TOKEN;
   if (!secret || secret.length < 32) return reply(204);
   if (process.env.CONTEXT && process.env.CONTEXT !== 'production') return reply(204);
-  if (request.headers.get('origin') !== new URL(request.url).origin) return reply(403);
+  const allowedOrigin = process.env.ANALYTICS_ALLOWED_ORIGIN || 'https://friendly-elf-6cfdcf.netlify.app';
+  if (new URL(request.url).origin !== allowedOrigin || request.headers.get('origin') !== allowedOrigin) return reply(204);
   if (!(request.headers.get('content-type') || '').startsWith('application/json')) return reply(415);
   const length = Number(request.headers.get('content-length') || 0);
   if (length > 320) return reply(413);
