@@ -54,6 +54,6 @@ Endpoint → **Requests** に次のJSONを入力します。JPEG_BASE64は、実
 
 ## 利用条件
 
-[LTX・10Eros・Gemma・ComfyUIのライセンスと出典](NOTICE-THIRD-PARTY.md)を確認してください。ライセンス文書の追加だけで、第三者のPythonやWorkflowの再配布権限まで自動的に得られるわけではありません。
+LTX・10Eros・Gemmaは、各ライセンスの条件に従って再配布します。必要な規約・NoticeをOCIの追加レイヤーへ同梱します。[ライセンスと出典](NOTICE-THIRD-PARTY.md)
 
 [公開準備状況](docs/STATUS.md)
