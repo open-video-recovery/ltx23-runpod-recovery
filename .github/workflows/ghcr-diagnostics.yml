@@ -1,13 +1,5 @@
 name: GHCR diagnostic RunPod worker (NO MODELS)
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/ghcr-diagnostics.yml"
-      - "Dockerfile.ghcr-smoke"
-      - ".dockerignore"
-      - "runtime/ghcr_smoke.py"
-      - "tests/test_ghcr_smoke.py"
   workflow_dispatch:
 
 permissions:
