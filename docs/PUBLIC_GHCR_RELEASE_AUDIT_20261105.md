@@ -1,6 +1,8 @@
 # Public GHCR release audit — 2026-11-05
 
-## Decision: BLOCKED (Public exposure already confirmed)
+> **2026-11-05 追記：監査時点から更新あり。** Gitブランチ履歴は10本を正式に書換え済み（547オブジェクトを再検査し元所有者名0件）。旧PR参照9件と旧SHA直接URLはGitHub上に残存します。READMEとNOTICEは一般的なモデル配布の上流ライセンス・NOTICE同梱型へ更新済みです。以下は書換え以前の監査記録であり、現在のGHCR公開状況・検証済み事項と混同しないでください。
+
+## Historical audit decision (before Git history rewrite)
 
 This is a practical compliance and provenance review, **not** a legal opinion.
 
