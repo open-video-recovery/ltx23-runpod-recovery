@@ -135,6 +135,7 @@ ghcr.io/open-video-recovery/ltx23-runpod-recovery:diagnostics
 - [配布判断の日本語説明](docs/DISTRIBUTION_POLICY_JA.md)
 - [権利者への照会文案](docs/RIGHTSHOLDER_INQUIRIES.md)
 - [モデル4点の固定revisionとSHA256](models.lock.json)
+- [公開者向け・モデル同梱OCIのクラウド構築手順](docs/OCI_BUILDER_OPERATOR_JA.md)
 - [旧Workflowの出典・未復元事項](workflows/README.md)
 
 **OCI同梱の原則**：公開する予定の本番イメージにはモデル4点・Worker・ComfyUI・API Workflowを収録します。起動時に大容量モデルをDocker HubやHugging Faceから毎回取得する設計は採用しません。現在検証済みなのは**模擬ウェイト**を使ったGHCR Push/Pull・ネットワーク無しの復元のみです。
