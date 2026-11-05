@@ -79,3 +79,11 @@ docker push ghcr.io/open-video-recovery/ltx23-runpod-recovery:ltx23-10eros-v1.4
 - 未了：42GB実モデルのビルド、生成可能なWorkflow/Custom Nodes、RunPod GPU MP4実証、公開GHCRの法務条件解決。
 
 配布権限・実生成を確認していない間は、初心者が利用できる完成版とは表記しません。
+
+## 最新の自己所有GHCRベース（2026-11-05）
+
+- GHCR build-and-push [run 41945520845](https://github.com/open-video-recovery/ltx23-runpod-recovery/actions/runs/41945520845)：**成功**。モデルは含まない。
+- `ghcr.io/open-video-recovery/ltx23-runpod-recovery@sha256:6eddba26842c6f6d02e9f07ef3a409d11eee3b54425e5b7890b1666e1e3aa07e`
+- `scripts/render_embedded_dockerfile.py`は、この自前GHCRイメージをFROMとして4モデルの分割レイヤーを追加します。他者のモデル同梱OCIを丸ごとコピーしません。
+- ビルドのみのGitHub Actions：`[.github/workflows/ghcr-private-model-build.yml](../.github/workflows/ghcr-private-model-build.yml)`。`ltx-oci-large`ラベル付き大容量self-hosted runnerが必要で、現在この匿名アカウントに登録済みであることは確認できていません。
+- CPU・Workflow・GPUのテストはこのビルドジョブには含みません。4モデル入りの候補イメージは、Workflow未復元のため**動画生成不可**と明示します。最終的な公開は配布条件が満たされてからです。
