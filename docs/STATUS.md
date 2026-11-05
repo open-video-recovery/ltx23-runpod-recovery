@@ -9,7 +9,7 @@
 - [GHCR publish workflow](../.github/workflows/ghcr-legacy-license-overlay.yml) をmainへ実装済み。手動実行のみ。CPU/GPU/Workflowテストなし。
 - [初心者用README](../README.md) はGHCR → RunPod Endpoint → Requestsだけに短縮。
 - 追加するレイヤー：LTX/Gemma/ComfyUIのライセンス全文・NOTICE・公式AUP/禁止事項（元のPython/Workflow/モデルは変更なし）。
-- GHCR書き込みには一度だけGitHub Actionsの**Repository variable** `OCI_SOURCE_IMAGE`（Public Docker HubのモデルOCI参照先）を設定する必要があります。SecretやDocker Hub認証情報は不要です。既存アカウントとの関連を公表しないため、公開リポジトリのファイルにはその名前を記載しません。
+- GHCR書き込みには一度だけGitHub Actionsの**Repository secret** `OCI_SOURCE_IMAGE`（Public Docker HubのモデルOCI参照先）を設定する必要があります。Docker Hubの認証トークンは不要です。移行完了後はSecretを削除できます。既存アカウントとの関連を公表しないため、公開リポジトリのファイルにはその名前を記載しません。
 - **GHCR登録は現時点では未実行、RunPod EndpointのGHCR差し替えも未実行です。** 元OCIのいずれかのレイヤーがGHCRの10GB上限を超える場合、変更なしのレイヤー転送はできず、ワークフローは停止します。
 - **モデルのライセンス方針は確認済み：** LTX・Gemma・10Erosは既存ライセンスに従った条件付き再配布とし、別途の包括的な特別許諾を取得することを前提としません。規約全文・Notice・利用制限を追加レイヤーに同梱します。元Python等の権利や下流利用条件の履行はモデルの許諾とは別に確認します。GHCR PackageのPublic化はこれらの条件を満たした時点で行います。
 
