@@ -1,19 +1,5 @@
 name: GHCR OCI embedded-model contract (fake test weights)
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/ghcr-oci-contract.yml"
-      - "Dockerfile.oci-contract"
-      - ".dockerignore"
-      - "scripts/model_chunks.py"
-      - "scripts/oci_contract_fixture.py"
-      - "tests/test_model_chunks.py"
-      - "scripts/check_public_release.py"
-      - "scripts/verify_legal_snapshot.py"
-      - "scripts/collect_official_policies.py"
-      - "third_party_licenses/**"
-      - "legal/public-ghcr-release-gates.json"
   workflow_dispatch:
 
 permissions:
