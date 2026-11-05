@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "decision": "BLOCKED",
+  "decision": "BLOCKED_PUBLIC_IMAGE_ALREADY_ANONYMOUSLY_ACCESSIBLE",
   "artifact": "public GHCR image containing LTX-2.3 10Eros v1.4, Gemma 3, LoRA and upscaler",
   "updated_on": "2026-11-05",
-  "note": "Distribution permitted conditionally by source licenses. A public GHCR model package remains blocked until actual downstream enforceable terms, policy copies, third party notices, export compliance and tested engine are supported. Neither blanket written author permission nor a mandatory lawyer letter is stated in upstream Section 3.",
+  "note": "Pinned model-bearing OCI successfully published 2026-11-05, and a read-only anonymous Registry API GET succeeded at 16:43 JST. This is already externally retrievable; public-release legal/privacy clearance is not complete. Must not assert private package, or that a Public package can be returned to Private. GHCR package deletion requires explicit owner decision. Document inclusion is confirmed, but downstream agreements, third-party runtime rights, export controls and public Git history remain unresolved.",
   "gates": {
     "ltx_license_text": {
       "status": "evidence_collected",
@@ -22,12 +22,12 @@
       "evidence": "third_party_licenses/ComfyUI-GPL-3.0.txt"
     },
     "ltx_aup_copy": {
-      "status": "verified_in_test_image_only",
-      "evidence": "Official LTX AUP SHA256 snapshot 19bdf16856611b61e54e8c474f45e770c97c95818dcd1dcead7893dbf669af42; offline verification inside fake-weight OCI: run 41937445861. Must still include in production image."
+      "status": "verified_in_model_bearing_oci",
+      "evidence": "GHCR pinned digest sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5, audit run 41988901851: official PDF embedded, SHA256 matches policy-snapshot.json."
     },
     "gemma_prohibited_policy_copy": {
-      "status": "verified_in_test_image_only",
-      "evidence": "Official Gemma prohibited-use HTML SHA256 snapshot 2fafa55131e65d0086163aa0e820b419793a49981721fd9875801333466ef36a; offline verification inside fake-weight OCI: run 41937445861. Must still include in production image."
+      "status": "verified_in_model_bearing_oci",
+      "evidence": "GHCR pinned digest, audit run 41988901851: official policy HTML embedded, SHA256 matches policy-snapshot.json."
     },
     "comfyui_node_notices_source_access": {
       "status": "pending",
@@ -50,16 +50,36 @@
       "evidence": "No special written license is universally required by LTX-2 section 3 or Gemma section 3.1; demonstrate actual fulfillment of each condition. Independent specialist opinion is advisable for uncertain anonymous-pull and export-control terms, not a stated upstream license prerequisite."
     },
     "original_workflow_rights_or_independent_workflow": {
-      "status": "pending",
-      "evidence": "Original workflow bytes not distributed; independent equivalent not GPU validated"
+      "status": "legacy_worker_workflow_included_rights_unverified",
+      "evidence": "Original legacy Python Worker + Workflow bytes were preserved from a third-party-derived OCI. Additional NOTICE files alone do not establish source redistribution grant."
     },
     "full_model_oci_build_and_digest": {
-      "status": "software_preparation_verified_real_model_pending",
-      "evidence": "4-model staging, split COPY and offline restoration CPU tests: run 41941448557; fake OCI GHCR publish/pull: run 41937445861. Real 42GB model-bearing OCI has not been built or published."
+      "status": "confirmed_ghcr_push_digest",
+      "evidence": "Action run 41976344090 success; image ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5; 23 layers after re-pack, 8 carriers for 22GiB legacy layer."
     },
     "runpod_gpu_mp4_reproduction": {
       "status": "pending",
       "evidence": "Real GPU test not performed"
+    },
+    "anonymous_ghcr_pull": {
+      "status": "PUBLIC_ACCESS_CONFIRMED",
+      "evidence": "Unauthenticated GHCR bearer token + GET immutable manifest successfully matched pinned SHA256; GitHub Action 41989198610 2026-11-05 16:43 JST."
+    },
+    "anonymous_project_history": {
+      "status": "EXPOSED",
+      "evidence": "A prior publicly accessible Git commit 89c50a... contains the source Docker Hub account reference. Updating current README or OCI labels cannot erase public Git history and historical PR data."
+    },
+    "actual_image_label_history": {
+      "status": "partial_findings_remain",
+      "evidence": "Real pinned OCI config: 23 layers / 74 history entries. No source Docker Hub owner string or former project marker matched. One home-style path in history; small layer4 has home-style path; layer5 contains GitHub URLs. 12 large layers not content-scanned; user-identification exclusion cannot be guaranteed."
+    },
+    "embed_license_materials": {
+      "status": "confirmed_main_texts_only",
+      "evidence": "Actual GHCR overlay scanned: LTX full license 19197 bytes, Gemma archived terms 10757, Gemma NOTICE 97, Comfy GPL 35149, third-party notices 3817, LTX AUP PDF 83649, official Gemma terms HTML 144324, Gemma policy HTML 135357. Official policy SHA256s matched; complete licenses for all legacy custom nodes/runtime still unverified."
+    },
+    "downstream_restrictions_contract": {
+      "status": "NOT_IMPLEMENTED",
+      "evidence": "LTX-2 section 3(a) and Gemma 3.1 request enforceable downstream restrictions. No confirmed binding agreement mechanism before anonymous GHCR pull."
     }
   }
 }
