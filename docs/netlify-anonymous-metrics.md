@@ -12,7 +12,7 @@
 ## 実装済み（本番展開ではない）
 - `telemetry.js`: 外部トラッカー無し、同一オリジンのみ、送信障害は無視。
 - `track.mjs`: 許可リスト型、数百バイト制限、Origin一致、Netlify FunctionsのIPベースレート制限。
-- `stats.mjs`: 管理者トークン認証、30/90日の日別・月別。
+- `stats.mjs`: 管理者トークン認証、30/90日の日別・週別・月別。
 - `prune-metrics.mjs`: 日次90日超削除（UTC 03:00、JST 12:00）。
 - `admin-stats.html`: トークンをURLやlocalStorageへ保存しない管理者画面。
 - `test/metrics.test.mjs`: 許可フィールド、冪等、集計の単体テスト。
@@ -47,7 +47,7 @@ UUIDを保存し、チェックを外すと削除。本人の識別や厳密なU
    JSON生成ボタンの成功時 `window.ovrMetrics?.send('json_created')` などを入れる。
    既存の入力UIや変換処理を置換しない。
 6. 本番配信後に公開画面を開く → JSON生成/コピー/保存 →
-   `/admin-stats.html` で管理者トークンを入力し、日別数値が増えるか検証。
+   `/admin-stats.html` で管理者トークンを入力し、日別・週別・月別数値が増えるか検証。
    異なるタブで別セッション、同一タブ再読込で同一日重複しないことを確認。
    ブラウザ開発者ツールで計測に機密が含まれないことを確認する。
 7. `/.netlify/functions/stats` にトークンなしで401、誤トークンで401を確認。
