@@ -4,9 +4,9 @@
 
 ## 一度だけの設定
 
-1. 匿名GitHubアカウントの [Secrets and variables / Actions](https://github.com/open-video-recovery/ltx23-runpod-recovery/settings/secrets/actions) を開く。
-2. Repository Secret **OCI_SOURCE_IMAGE** を作り、所有しているDocker HubのLTX 2.3 / 10Eros v1.4イメージ参照先（タグまたはDigest）を入力する。既存アカウントの認証情報や個人情報を公開READMEへ記載しない。
-3. Docker Hub側のイメージは匿名Pullが可能であること。プライベートなら追加のDocker Hub認証設定が必要です。
+1. [GitHub ActionsのVariables](https://github.com/open-video-recovery/ltx23-runpod-recovery/settings/variables/actions) を開く。
+2. **Repository variable** `OCI_SOURCE_IMAGE` に所有するPublic Docker Hubイメージの参照先（タグまたはDigest）を設定する。**Secretではありません。** トークン・認証情報も不要です。GitHubの公開ソースに元のアカウント名を直書きしないための設定です。
+3. Docker Hub側のイメージが匿名Pull可能であることを確認してください。
 
 ## GHCRへ登録
 
