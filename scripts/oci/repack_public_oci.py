@@ -137,6 +137,7 @@ def ghcr_upload(repo, filename, expected, size):
     status,headers,_=api("POST",f"https://ghcr.io/v2/{repo}/blobs/uploads/",token,data=b"")
     if status!=202: die("GHCR_UPLOAD_INIT_HTTP_"+str(status))
     location=urllib.parse.urljoin("https://ghcr.io",headers.get("Location",headers.get("location","")))
+    if not headers.get("Location",headers.get("location","")): die("GHCR_UPLOAD_LOCATION_MISSING")
     if urllib.parse.urlsplit(location).hostname!="ghcr.io": die("GHCR_UPLOAD_UNTRUSTED_REDIRECT")
     with tempfile.NamedTemporaryFile(mode="w+",delete=True) as hdr:
         proc=subprocess.run([
@@ -144,7 +145,7 @@ def ghcr_upload(repo, filename, expected, size):
             "--max-time","1800","--request","PATCH",
             "--header","Authorization: Bearer "+token,
             "--header","Content-Type: application/octet-stream",
-            "--data-binary","@"+str(filename),
+            "--upload-file",str(filename),
             "--dump-header",hdr.name,"--output","/dev/null",location,
         ],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         if proc.returncode: die("GHCR_UPLOAD_PATCH_FAILED_"+str(proc.returncode))
@@ -345,7 +346,7 @@ def main():
         summary=os.getenv("GITHUB_STEP_SUMMARY")
         if summary:
             with open(summary,"a") as out:
-                out.write(f"## GHCR OCI Published\n\n- Image: \`{target}\`\n- Digest: \`{result_digest}\`\n")
+                out.write(f"## GHCR OCI Published\n\n- Image: {target}\n- Digest: {result_digest}\n")
                 out.write("- Original Worker/Workflow/model bytes preserved. Large OCI layer restored at worker startup.\n")
                 out.write("- RunPod container disk: 120GB recommended. GPU video not tested.\n")
 
