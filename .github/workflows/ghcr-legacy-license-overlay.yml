@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     env:
-      SOURCE_IMAGE: ${{ secrets.OCI_SOURCE_IMAGE }}
+      SOURCE_IMAGE: docker.io/source-account-redacted/i2vltx:ltx23-quality-v1
       DEST_IMAGE: ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14
     steps:
       - uses: actions/checkout@v4
@@ -48,10 +48,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -z "$SOURCE_IMAGE" ]; then
-            echo "Set repository secret OCI_SOURCE_IMAGE to the existing owned Docker Hub image reference." >&2
-            exit 2
-          fi
           crane manifest --platform linux/amd64 "$SOURCE_IMAGE" > "$RUNNER_TEMP/source-manifest.json"
           jq -e '.layers | type == "array"' "$RUNNER_TEMP/source-manifest.json" >/dev/null
           jq -e 'all(.layers[]; .size < 10000000000)' "$RUNNER_TEMP/source-manifest.json" >/dev/null || {
