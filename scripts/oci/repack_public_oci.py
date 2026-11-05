@@ -108,11 +108,43 @@ def source_manifest(repo, tag, token):
     if "config" not in obj or not obj.get("layers"): die("SOURCE_MANIFEST_INVALID")
     return obj
 
+def fresh_source_token(repo):
+    """Issue a new anonymous registry token before every blob request.
+
+    Copying the 22GiB layer can take longer than a Docker Hub bearer token's
+    lifetime. Refresh between blob requests without restarting an active stream.
+    """
+    url = "https://auth.docker.io/token?" + urllib.parse.urlencode({
+        "service": "registry.docker.io",
+        "scope": f"repository:{repo}:pull",
+    })
+    code, _, raw = api("GET", url)
+    if code != 200:
+        die("SOURCE_TOKEN_REFRESH_FAILED")
+    token = json.loads(raw).get("token")
+    if not token:
+        die("SOURCE_REFRESH_TOKEN_MISSING")
+    return token
+
+
 def source_stream(repo, sha, token):
-    req=urllib.request.Request(
-        f"https://registry-1.docker.io/v2/{repo}/blobs/{sha}",
-        headers={"Authorization":"Bearer "+token})
-    return OPENER.open(req,timeout=180)
+    url = f"https://registry-1.docker.io/v2/{repo}/blobs/{sha}"
+    # Always start each layer with a fresh bearer token. Re-authorize once if
+    # the registry races us with token expiry. No image ref printed to logs.
+    for attempt in range(2):
+        bearer = fresh_source_token(repo)
+        req = urllib.request.Request(
+            url, headers={"Authorization": "Bearer " + bearer})
+        try:
+            return OPENER.open(req, timeout=180)
+        except urllib.error.HTTPError as err:
+            code = err.code
+            err.close()
+            if code != 401:
+                die("SOURCE_BLOB_GET_HTTP_" + str(code))
+            if attempt == 0:
+                print("SOURCE_TOKEN_EXPIRED_REFRESHING", flush=True)
+    die("SOURCE_BLOB_UNAUTHORIZED_AFTER_REFRESH")
 
 def download_verified(repo, desc, token, output):
     h=hashlib.sha256()
