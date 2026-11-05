@@ -66,8 +66,8 @@
       "evidence": "Unauthenticated GHCR bearer token + GET immutable manifest successfully matched pinned SHA256; GitHub Action 41989198610 2026-11-05 16:43 JST."
     },
     "anonymous_project_history": {
-      "status": "MAIN_AND_9_BRANCHES_REWRITTEN;_OLD_PR_REFS_REMAIN",
-      "evidence": "GitHub Actions run 41998525863 succeeded; 10 writable branches rewritten and 547 reachable Git objects scanned: 0 source Docker Hub owner matches. GitHub internal PR refs (9) and direct old commit SHA URLs remain accessible and may need GitHub Support/new clean repository for complete unlinking."
+      "status": "BRANCH_HISTORY_CLEANED_PR_MANAGED_REFERENCE_REMAINS",
+      "evidence": "All ten writable branches were rewritten using a generic redaction marker; 547 reachable new Git objects contained zero source-account matches. A GitHub-managed pull-request head retains a pre-rewrite ancestor and is not editable through normal Git push; source account identifying text is not restated in this public report."
     },
     "actual_image_label_history": {
       "status": "partial_findings_remain",
