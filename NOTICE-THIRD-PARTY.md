@@ -8,7 +8,7 @@ copyrightable recovery-kit code**. It does **not** relicense any of the
 following third-party models, ComfyUI, custom nodes, converted files or
 software packages.
 
-## Models in the private model-bearing GHCR OCI
+## Models in the model-bearing GHCR OCI
 
 | Component | Upstream model source | License / terms |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ software packages.
 
 The precise model revisions, SHA-256 hashes and checkpoint destinations
 are in models.lock.json. The 10Eros file is a fine-tuned / converted model,
-not created by this repository. **No model weights are committed to this public source repository or its diagnostic OCI image. The separate model-bearing GHCR OCI was published on 2026-11-05, but has not been cleared for public distribution.**
+not created by this repository. **No model weights are committed to this public source repository or its diagnostic OCI image. A separate model-bearing GHCR OCI was uploaded on 2026-11-05. A subsequent anonymous-pull audit established that it is publicly retrievable even though public distribution has NOT passed legal/privacy review. This README/NOTICE is not an authorization for further distribution.**
 
 ## Licenses included with this project
 
