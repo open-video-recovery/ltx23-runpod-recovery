@@ -1,36 +1,50 @@
-# LTX 2.3 / 10Eros v1.4 — RunPod Serverless
+# LTX 2.3 + 10Eros v1.4 | RunPod Serverless
 
-画像1枚から動画を生成する、自分専用のRunPod Endpointを作る手順です。**Docker・GitHub・モデルのダウンロード操作は不要です。**
+**画像1枚から動画（MP4）を生成するための、モデル・Worker・Workflow同梱のコンテナです。** Dockerのインストールやモデルの手動ダウンロードは不要。RunPodのServerless Endpointから利用できます。
 
-> **GHCRイメージ登録済み。** 元のモデルとWorker、Workflowに対応した利用規約・NOTICEをOCIへ同梱しています。RunPodでのGPU動画生成はまだ未検証です。
+## 動作確認
 
-## 1. GHCRイメージ
+- **2026年11月5日、RunPodの24GB GPU（RTX 4090系）で画像→MP4生成に成功。**
+- 出力：**640 × 960 / 24fps / 約5.04秒 / H.264 MP4（121フレーム）**。FFmpegで全フレームのデコードに成功しています。
+- モデル本体・Worker・Workflowを含む22レイヤーは、実機確認したイメージから**変更していません**。最新リリースではライセンス／NOTICEとOCIメタデータのみ更新しています。
+- 映像の仕上がりの良し悪しや、すべてのプロンプトでの動作を保証するものではありません。
 
-GitHub Actionsで実際に登録・Digest確認したイメージです。
+## 1. コンテナイメージ
 
-~~~text
-ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5
-~~~
+以下をRunPodのContainer Imageに指定してください。**公開GHCRから匿名取得可能**で、Docker Hubアカウントは不要です。
 
-既存のLTX 2.3 / 10Eros v1.4モデル、Worker、Workflowを再利用し、GHCRの10GB/レイヤー制限のため巨大レイヤーを分割しました。実行時に元のレイヤー内容を復元してからWorkerを起動します。ライセンス文書も同梱しています。
+```text
+ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:cb6dc2a1dac7945f154c3ed48bd3493d921fe3bbb430a251db954f6596780082
+```
 
-## 2. RunPodでEndpointを作成
+## 2. RunPod Serverlessの設定
 
-1. [RunPod](https://www.runpod.io/)に登録し、支払い設定を行います（GPU利用は有料）。
-2. RunPod Console → **Serverless → New Endpoint**。
-3. **Import from Docker Registry** を選び、上記の固定Digestを入力。
-4. **Queue**タイプを選び、公開時に指定するGPU・Disk・Timeoutを設定。
-5. 初回は **Active Workers = 0、Max Workers = 1** として **Deploy Endpoint**。
+[RunPod](https://www.runpod.io/) → Serverless → New Endpoint → **Import from Docker Registry**（画面表記は変わる場合があります）。上のイメージを設定し、以下を目安にしてください。
 
-既存のEndpointを使う場合は、Endpointの編集画面からContainer Imageを固定Digestに変更します。
+| 設定 | 24GBでの検証構成 |
+| --- | --- |
+| GPU | RTX 4090 / 24GB（ADA_24） |
+| Container Disk | **150 GB** |
+| Type | Queue |
+| Active / Min Workers | **0** |
+| Max Workers | **1** |
+| Idle Timeout | **5秒** |
 
-GPU利用は有料です。初回起動で分割モデルを復元するため、Container Diskは120GBを目安にし、起動時間に余裕を見てください。
+必要な環境変数（実機検証時と同じ値）：
 
-## 3. Requestsから動画生成
+```env
+HF_HUB_OFFLINE=1
+RIRUKA_MODEL=ltx23
+WORKER_BUILD=i2vltx-2.3-quality-profiles-v1
+```
 
-Endpoint → **Requests** に次のJSONを入力します。JPEG_BASE64は、実際のJPEG画像をBase64にした文字列へ置き換えてください。
+**注意：イメージは約36.5GiBと大きいです。** 初回はダウンロードとモデル展開で長時間初期化することがあります。実機テストでは最初のジョブが完了するまで約12分でした（環境により変動）。RunPodのGPU料金が発生します。
 
-~~~json
+## 3. 画像→動画のテスト
+
+RunPodのEndpoint → **Requests** から、次のJSONを実行します。`JPEG_BASE64`を入力用JPEG画像のBase64文字列（`data:image/jpeg;base64,` の接頭辞なし）に置き換えてください。
+
+```json
 {
   "input": {
     "mode": "i2v",
@@ -44,16 +58,18 @@ Endpoint → **Requests** に次のJSONを入力します。JPEG_BASE64は、実
     "distilled_strength": 0.5,
     "first_stage_strength": 0.85,
     "refine_stage_strength": 1.0,
-    "prompt": "A gentle breeze moves the subject's hair.",
+    "prompt": "A gentle camera pan across a colorful geometric scene.",
     "files": [{"name": "input.jpg", "data": "JPEG_BASE64"}]
   }
 }
-~~~
+```
 
-**Run** を押し、完了したら動画を確認します。使わなくなったEndpointは削除してください。
+ジョブが `COMPLETED` になったら出力動画を確認してください。**料金を抑えるにはMin Workers=0を維持**し、不要になったEndpointは削除してください。
 
-## 利用条件
+## 利用規約・作者へのクレジット
 
-LTX・10Eros・Gemmaはそれぞれの上流ライセンスおよび利用条件が適用されます。規約・Notice・公式ポリシーをOCIの追加レイヤーに同梱しています。元モデル作者と本リポジトリは別主体であり、作者による推奨・保証を示しません。[ライセンスと出典](NOTICE-THIRD-PARTY.md)
+LTX-2、10Eros、Gemma、ComfyUIなどのモデルとソフトウェアにはそれぞれの上流ライセンス・利用制限が適用されます。ライセンス全文、Gemma NOTICE、LTX AUP、Gemma禁止用途ポリシーなどはOCI内の `/opt/recovery-licenses/` に同梱されています。
 
-[公開準備状況](docs/STATUS.md)
+詳しくは [第三者ライセンスと出典](NOTICE-THIRD-PARTY.md) をご確認ください。元のモデル・ソフトウェアの作者と、この再パッケージ提供者は別主体です。作者による推奨・保証を意味しません。
+
+[技術的な検証範囲と更新履歴](docs/STATUS.md)

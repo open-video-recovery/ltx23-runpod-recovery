@@ -1,63 +1,42 @@
-# Third-party attribution and distribution notices
+# Third-party licenses and notices / 使用条件・出典
 
-Project: LTX 2.3 / 10Eros RunPod Recovery Kit
-Snapshot prepared: 2026-11-05
+This image packages existing third-party model weights and runtime components for RunPod Serverless. The model authors and component developers are not affiliated with this repository and do not endorse or warrant this distribution.
 
-This repository's MIT license applies **only to independently authored,
-copyrightable recovery-kit code**. It does **not** relicense any of the
-following third-party models, ComfyUI, custom nodes, converted files or
-software packages.
+**The repository's MIT license applies only to original recovery-kit code. It does not replace the terms for third-party models, weights, ComfyUI, extensions, or software.**
 
-## Models in the model-bearing GHCR OCI
+## Models and upstream sources
 
-| Component | Upstream model source | License / terms |
+| Component | Upstream source | Applicable license / terms |
 | --- | --- | --- |
-| 10Eros v1.4 FP8 mixed learned | https://huggingface.co/TenStrip/LTX2.3-10Eros | LTX-2 Community License (2026-01-05), per author https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37 |
-| Sulphur-derived lineage | https://huggingface.co/SulphurAI/Sulphur-2-base | LTX-2 Community License; original authors retained |
-| Gemma 3 12B FP4 mixed conversion | https://huggingface.co/Comfy-Org/ltx-2 | Gemma Terms of Use and Google's Prohibited Use Policy |
-| LTX 2.3 distilled rank-111 LoRA | https://huggingface.co/Comfy-Org/ltx-2.3 | LTX-2 Community License; respect conversion/packaging notices |
-| LTX 2.3 x2 spatial upscaler | https://huggingface.co/Lightricks/LTX-2.3 | LTX-2 Community License |
-| ComfyUI | https://github.com/Comfy-Org/ComfyUI | GPL-3.0 |
-| RunPod Python SDK | https://github.com/runpod/runpod-python | MIT, subject to verification of pinned version |
-| Custom Nodes | Future complete pinned dependency manifest | Each original project license; **not audited yet** |
+| LTX 2.3 / 10Eros v1.4 fine-tuned checkpoint | [TenStrip / LTX2.3-10Eros](https://huggingface.co/TenStrip/LTX2.3-10Eros) | [LTX-2 Community License](https://github.com/Lightricks/LTX-2/blob/main/LICENSE-2); [author's license explanation](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37) |
+| Sulphur model lineage | [SulphurAI / Sulphur-2-base](https://huggingface.co/SulphurAI/Sulphur-2-base) | LTX-2 Community License |
+| LTX 2.3 Distilled LoRA | [Comfy-Org / ltx-2.3](https://huggingface.co/Comfy-Org/ltx-2.3) | LTX-2 Community License |
+| LTX 2.3 x2 upscaler | [Lightricks / LTX-2.3](https://huggingface.co/Lightricks/LTX-2.3) | LTX-2 Community License |
+| Gemma 3 text encoder (conversion) | [Comfy-Org / ltx-2](https://huggingface.co/Comfy-Org/ltx-2) | [Gemma Terms](https://ai.google.dev/gemma/terms) and [Gemma Prohibited Use Policy](https://ai.google.dev/gemma/prohibited_use_policy) |
+| ComfyUI | [Comfy-Org / ComfyUI](https://github.com/comfyanonymous/ComfyUI) | GPL-3.0 |
+| RunPod Python SDK | [RunPod SDK](https://github.com/runpod/runpod-python) | MIT |
+| Other runtime dependencies and custom nodes | Original projects indicated by their installed distributions | Their respective upstream licenses and notices apply |
 
-The precise model revisions, SHA-256 hashes and checkpoint destinations
-are in models.lock.json. The 10Eros file is a fine-tuned / converted model,
-not created by this repository. **No model weights are committed to this public source repository or its diagnostic OCI image. Model-bearing OCI weights are distributed separately via GHCR and remain subject to the upstream license and acceptable-use terms noted here.**
+Original developers retain their copyright, trademarks and attribution. Recipients remain responsible for complying with applicable terms, including LTX and Gemma use restrictions and any conditions on further redistribution.
 
-## Licenses included with this project
+## Legal documents included in the OCI image
 
-* third_party_licenses/LTX-2-Community-License-2026-01-05.txt
-  (including Attachment A and use restrictions)
-* third_party_licenses/Gemma-Terms-of-Use-2026-04-01.md
-  (archived snapshot; compare against official current terms)
-* third_party_licenses/Gemma-NOTICE.txt
-  (exact required Notice statement)
-* third_party_licenses/ComfyUI-GPL-3.0.txt
-* The LTX AUP, official Gemma terms and prohibited-use policy:
-  snapshots are fetched into OCI by GitHub Actions for technical fixture
-  and verified via SHA-256. See scripts/collect_official_policies.py.
+The image includes these materials under `/opt/recovery-licenses/`:
 
-Recipients must comply with the applicable LTX-2 and Gemma model terms,
-including their restrictions on permitted uses, redistribution and export.
-The upstream license documents govern their respective components; this
-NOTICE does not override or weaken those requirements.
+- `third_party_licenses/LTX-2-Community-License-2026-01-05.txt` (including Attachment A)
+- `third_party_licenses/Gemma-Terms-of-Use-2026-04-01.md` (archived snapshot)
+- `third_party_licenses/Gemma-NOTICE.txt` (required notice)
+- `third_party_licenses/ComfyUI-GPL-3.0.txt`
+- `official-policies/LTX-Acceptable-Use-Policy.pdf`
+- `official-policies/Gemma-Terms-Official.html`
+- `official-policies/Gemma-Prohibited-Use-Policy-Official.html`
+- `official-policies/policy-snapshot.json` (document checksums)
+- `NOTICE-THIRD-PARTY.md` (this notice)
 
-## Change notices
+The official source websites control where a document has changed. A copy of the Gemma terms here is a dated snapshot; use the current official terms when required.
 
-* Diagnostic scripts are independently authored recovery-kit code. The full OCI preserves the original legacy third-party Python Worker and Workflow bytes. Their respective redistribution terms and required source/attributions have not been conclusively verified.
-* The intended full OCI applies upstream model conversions already
-  distributed by publishers; this project does not claim to have authored
-  any checkpoint, conversion, distillation or quantization.
-* The project may package third-party files into an OCI image without
-  modifying them; any actual modifications must be documented at release.
+## Packaging changes and attribution
 
-## Distribution and attribution practice
+This release reuses an existing model-bearing OCI image. It repackages one oversized compressed OCI layer into smaller transport layers to meet registry limits and adds a startup restoration script plus license documents. The repository does not claim authorship of third-party checkpoints, source conversions, Python Workers, workflows, or custom nodes.
 
-- Keep the model licenses, Gemma NOTICE, acceptable-use terms and this third-party NOTICE together with the image, as bundled in `/opt/recovery-licenses/`.
-- Retain original third-party authorship notices and link to upstream projects.
-- Follow the relevant terms for redistribution, acceptable use and export.
-- Where custom nodes or other bundled runtime components require separate license texts or corresponding source, provide them under their own licenses; no such third-party code is relicensed under this repository's MIT license.
-- The image is provided as-is and its compatibility with a given RunPod GPU must be validated independently.
-
-Do not suggest endorsement by TenStrip, Lightricks, Google, or RunPod.
+The packaged software is supplied **as-is**, without a guarantee of fitness for a particular GPU, workflow, or use case. Additional licenses in installed third-party packages are preserved; this NOTICE does not grant rights beyond the applicable upstream licenses.
