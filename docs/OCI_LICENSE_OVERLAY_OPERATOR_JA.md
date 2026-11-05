@@ -4,8 +4,8 @@
 
 ## 一度だけの設定
 
-1. [GitHub ActionsのVariables](https://github.com/open-video-recovery/ltx23-runpod-recovery/settings/variables/actions) を開く。
-2. **Repository variable** `OCI_SOURCE_IMAGE` に所有するPublic Docker Hubイメージの参照先（タグまたはDigest）を設定する。**Secretではありません。** トークン・認証情報も不要です。GitHubの公開ソースに元のアカウント名を直書きしないための設定です。
+1. [GitHub ActionsのSecrets](https://github.com/open-video-recovery/ltx23-runpod-recovery/settings/secrets/actions) を開く。
+2. **Repository secret** `OCI_SOURCE_IMAGE` に所有するPublic Docker Hubイメージの参照先（タグまたはDigest）を設定する。公開イメージ名ですが、匿名性のためSecretで渡します。Docker Hubの認証トークンは不要です。GitHubの公開ソースに元のアカウント名を直書きしないための設定です。
 3. Docker Hub側のイメージが匿名Pull可能であることを確認してください。
 
 ## GHCRへ登録
