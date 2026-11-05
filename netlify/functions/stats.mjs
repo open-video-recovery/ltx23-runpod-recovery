@@ -7,6 +7,8 @@ const json = (value,status=200) => new Response(JSON.stringify(value),{
 });
 export default async function handler(request) {
   if(request.method !== 'GET') return json({error:'Method not allowed'},405);
+  const allowedOrigin = process.env.ANALYTICS_ALLOWED_ORIGIN || 'https://friendly-elf-6cfdcf.netlify.app';
+  if(new URL(request.url).origin !== allowedOrigin) return json({error:'Not found'},404);
   const expected=process.env.ANALYTICS_ADMIN_TOKEN || '';
   if(expected.length < 32) return json({error:'Admin secret is not configured'},503);
   const given=(request.headers.get('authorization') || '').replace(/^Bearer /,'');
