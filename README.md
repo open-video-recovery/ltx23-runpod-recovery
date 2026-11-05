@@ -22,6 +22,8 @@ ghcr.io/open-video-recovery/ltx23-10eros-licensed@sha256:【公開後に記載�
 4. **Queue**タイプを選び、公開時に指定するGPU・Disk・Timeoutを設定。
 5. 初回は **Active Workers = 0、Max Workers = 1** として **Deploy Endpoint**。
 
+既存のEndpointを使う場合は、Endpointの編集画面でContainer Imageを新しいGHCRの固定Digestに変更します。
+
 GHCRがPrivateの場合はRunPodで**Registry Authentication**を設定する必要があります。初心者向けには、公開条件が整ったイメージを案内します。
 
 ## 3. Requestsから動画生成
