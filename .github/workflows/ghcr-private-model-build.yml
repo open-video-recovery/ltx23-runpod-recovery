@@ -1,4 +1,4 @@
-name: Private GHCR model OCI build (Megane6 self-hosted, no tests)
+name: Private GHCR model OCI build (self-hosted, no tests)
 
 # Copy THIS workflow to a PRIVATE repo owned by open-video-recovery.
 # NEVER register Megane6's runner against the public source repository.
@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 concurrency:
-  group: megane6-model-oci-private-build
+  group: private-model-oci-selfhosted-build
   cancel-in-progress: false
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
           ref: main
           path: recovery-source
           persist-credentials: false
-      - name: Verify Megane WSL and Docker capacity (not tests)
+      - name: Check build host disk and Docker capacity (not tests)
         shell: bash
         run: |
           set -euo pipefail
