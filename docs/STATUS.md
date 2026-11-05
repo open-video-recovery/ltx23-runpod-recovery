@@ -2,6 +2,17 @@
 
 更新日：2026-11-05。**モデル同梱の動画生成用RunPod Endpointはまだ完成していません。**
 
+## 2026-11-05 最新方針（従来の再構築案より優先）
+
+**既存モデル同梱OCIを再利用し、ライセンス文書の追加レイヤーだけを重ねてGHCRへ登録します。**
+
+- [GHCR publish workflow](../.github/workflows/ghcr-legacy-license-overlay.yml) をmainへ実装済み。手動実行のみ。CPU/GPU/Workflowテストなし。
+- [初心者用README](../README.md) はGHCR → RunPod Endpoint → Requestsだけに短縮。
+- 追加するレイヤー：LTX/Gemma/ComfyUIのライセンス全文・NOTICE・公式AUP/禁止事項（元のPython/Workflow/モデルは変更なし）。
+- GHCR書き込みには一度だけGitHub Secret **OCI_SOURCE_IMAGE**（ユーザー所有Docker HubのモデルOCI参照先）を設定する必要があります。既存アカウントとの関連を公表しないため、公開リポジトリのファイルにはその名前を記載しません。
+- **GHCR登録は現時点では未実行、RunPod EndpointのGHCR差し替えも未実行です。** 元OCIのいずれかのレイヤーがGHCRの10GB上限を超える場合、変更なしのレイヤー転送はできず、ワークフローは停止します。
+- GHCR PackageはPrivateのまま。一般公開の法的条件を満たしたとの判断ではありません。
+
 ## 今回までに実際に成功したこと
 
 - [初心者向けREADME](../README.md)：日本語、RunPod画面操作を順番に案内。無料でないこと、診断と本番の違い、秘密のAPIキー、停止方法も記載。
