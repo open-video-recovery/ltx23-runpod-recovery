@@ -62,6 +62,6 @@ for anonymous public GHCR downloads.
 3. Include binding downstream use terms, actual policy documents, notices,
    and a compliant distribution/access model.
 4. Satisfy applicable export/sanctions restrictions for intended recipients.
-5. Review the actual private model-bearing OCI (digest `sha256:434141dc283fe49808b93139de7905a9fb190071fbbe811809b1f021d9f1ceb5`), full privacy/provenance and RunPod GPU execution; GHCR upload success does not establish generation correctness.
+5. Review the currently anonymously accessible model-bearing OCI, including full provenance/privacy, and validate RunPod GPU execution. Upload success alone does not establish technical or legal release clearance.
 
 Do not suggest endorsement by TenStrip, Lightricks, Google, or RunPod.
