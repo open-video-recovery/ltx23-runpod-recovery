@@ -21,7 +21,10 @@ import shutil
 from prepare_embedded_bundle import SCHEMA, safe_relpath
 
 
-def render(staging: Path, project: Path, *, test_only: bool = False) -> Path:
+def render(staging: Path, project: Path, *, test_only: bool = False, source_repository: str = "open-video-recovery/ltx23-runpod-recovery") -> Path:
+    import re
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source_repository):
+        raise ValueError("INVALID_IMAGE_SOURCE_REPOSITORY")
     data = json.loads((staging / "bundle.json").read_text(encoding="utf-8"))
     if data.get("schema") != SCHEMA:
         raise ValueError("INVALID_STAGING_SCHEMA")
@@ -51,7 +54,7 @@ def render(staging: Path, project: Path, *, test_only: bool = False) -> Path:
     lines = [
         "# GENERATED CANDIDATE: never publish as verified GPU video endpoint.",
         "FROM ghcr.io/open-video-recovery/ltx23-runpod-recovery@sha256:6eddba26842c6f6d02e9f07ef3a409d11eee3b54425e5b7890b1666e1e3aa07e",
-        'LABEL org.opencontainers.image.source="https://github.com/open-video-recovery/ltx23-runpod-recovery"',
+        f'LABEL org.opencontainers.image.source="https://github.com/{source_repository}"',
         'LABEL org.opencontainers.image.description="Experimental LTX 2.3 full-model private candidate; NOT video verified"',
         "WORKDIR /opt/recovery",
         "COPY runtime/ runtime/",
@@ -104,5 +107,6 @@ if __name__ == "__main__":
     ap.add_argument("--staging", type=Path, required=True)
     ap.add_argument("--project", type=Path, default=Path(__file__).resolve().parents[1])
     ap.add_argument("--test-only-no-workflow", action="store_true")
+    ap.add_argument("--source-repository", default="open-video-recovery/ltx23-runpod-recovery")
     args = ap.parse_args()
-    print(render(args.staging, args.project, test_only=args.test_only_no_workflow))
+    print(render(args.staging, args.project, test_only=args.test_only_no_workflow, source_repository=args.source_repository))

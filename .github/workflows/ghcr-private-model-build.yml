@@ -1,8 +1,7 @@
-name: GHCR four-model OCI build only (private candidate; NO TESTS)
+name: Private GHCR model OCI build (self-hosted, no tests)
 
-# No CPU tests, model-generation tests, or RunPod GPU tests are executed here.
-# Requires a dedicated Linux AMD64 self-hosted runner with >=250GB FREE SSD.
-# This workflow cannot run on an ordinary 14GB GitHub-hosted runner.
+# Copy THIS workflow to a PRIVATE repo owned by open-video-recovery.
+# NEVER register Megane6's runner against the public source repository.
 on:
   workflow_dispatch:
 
@@ -11,71 +10,111 @@ permissions:
   packages: write
 
 concurrency:
-  group: ghcr-private-four-model-oci
+  group: private-model-oci-selfhosted-build
   cancel-in-progress: false
 
 jobs:
-  build-model-bundle:
+  bundle-real-weights:
+    if: github.event.repository.private == true
     runs-on: [self-hosted, linux, x64, ltx-oci-large]
-    timeout-minutes: 360
+    timeout-minutes: 720
     env:
-      BUILD_ROOT: /mnt/ltx23-oci-build
-      HF_HOME: /mnt/ltx23-oci-build/hf-cache
+      BUILD_ROOT: ${{ vars.LTX_BUILD_ROOT || '/mnt/ltx23-oci-build' }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       IMAGE: ghcr.io/open-video-recovery/ltx23-model-oci-candidate:unverified-${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Require sufficient disk for 42GB checkpoints, staging and OCI
+      - name: Checkout PUBLIC recovery code (no old account dependency)
+        uses: actions/checkout@v4
+        with:
+          repository: open-video-recovery/ltx23-runpod-recovery
+          ref: main
+          path: recovery-source
+          persist-credentials: false
+      - name: Check build host disk and Docker capacity (not tests)
+        shell: bash
         run: |
           set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "open-video-recovery/ltx23-private-builder" || {
+            echo "BUILD DENIED: only the dedicated private repository can run this" >&2
+            exit 8
+          }
+          test "$RUNNER_OS" = "Linux"
+          case "$BUILD_ROOT" in /*) ;; *) echo "BUILD_ROOT must be absolute"; exit 8;; esac
           mkdir -p "$BUILD_ROOT"
-          free_gib=$(df -BG --output=avail "$BUILD_ROOT" | tail -1 | tr -dc '0-9')
-          if [ "$free_gib" -lt 200 ]; then
-            echo "At least 200 GiB FREE disk is required; available: $free_gib GiB" >&2
-            exit 1
+          FREE_GIB=$(df -BG --output=avail "$BUILD_ROOT" | tail -1 | tr -dc '0-9')
+          if [ "$FREE_GIB" -lt 200 ]; then
+            echo "Staging requires >=200GiB free; got $FREE_GIB GiB" >&2
+            exit 8
           fi
-          test ! -e "$BUILD_ROOT/context"
-      - name: Install HF downloader (build prerequisites only)
+          command -v docker
+          docker info > /dev/null || {
+            echo "No working Docker daemon. CLI only is not enough." >&2
+            exit 8
+          }
+          DOCKER_ROOT=$(docker info --format '{{.DockerRootDir}}')
+          if [ ! -d "$DOCKER_ROOT" ]; then
+            echo "Docker data-root inaccessible from WSL: $DOCKER_ROOT" >&2
+            echo "Unable to verify Windows disk safety. Fix builder location first." >&2
+            exit 8
+          fi
+          ROOT_FREE=$(df -BG --output=avail "$DOCKER_ROOT" | tail -1 | tr -dc '0-9')
+          if [ "$ROOT_FREE" -lt 100 ]; then
+            echo "Docker layer storage needs 100GiB free; got $ROOT_FREE GiB" >&2
+            exit 8
+          fi
+          echo "Build source: $GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"
+          echo "Staging space: $FREE_GIB GiB; Docker layer space: $ROOT_FREE GiB" >> "$GITHUB_STEP_SUMMARY"
+          echo "HF_HOME=$BUILD_ROOT/hf-cache" >> "$GITHUB_ENV"
+          echo "STAGE=$BUILD_ROOT/context-$GITHUB_RUN_ID" >> "$GITHUB_ENV"
+      - name: Install downloader into local venv
+        shell: bash
         run: |
+          set -euo pipefail
           python3 -m venv "$BUILD_ROOT/venv"
           "$BUILD_ROOT/venv/bin/python" -m pip install --disable-pip-version-check 'huggingface_hub>=0.30,<2'
-      - name: Download four original-publisher models, verify full SHA256, split into OCI layers
+      - name: Download 4 official models, SHA256 verify and split layers
+        shell: bash
+        working-directory: recovery-source
         run: |
           set -euo pipefail
           "$BUILD_ROOT/venv/bin/python" scripts/download_models.py --model-root "$BUILD_ROOT/models"
           "$BUILD_ROOT/venv/bin/python" scripts/prepare_embedded_bundle.py \
             --model-root "$BUILD_ROOT/models" \
-            --out "$BUILD_ROOT/context" \
+            --out "$STAGE" \
             --chunk-bytes 2147483648
-      - name: Generate full OCI Dockerfile (NOT a video-ready release)
+      - name: Render candidate from our own GHCR base
+        shell: bash
+        working-directory: recovery-source
         run: |
           set -euo pipefail
           "$BUILD_ROOT/venv/bin/python" scripts/render_embedded_dockerfile.py \
-            --staging "$BUILD_ROOT/context" \
-            --project "$GITHUB_WORKSPACE" \
+            --staging "$STAGE" \
+            --project "$GITHUB_WORKSPACE/recovery-source" \
+            --source-repository "$GITHUB_REPOSITORY" \
             --test-only-no-workflow
-          echo "Image is an incomplete candidate: no audited workflow/custom nodes" >> "$GITHUB_STEP_SUMMARY"
-      - name: Authenticate to GHCR
+          echo "No audited I2V workflow or GPU proof. Incomplete private candidate." >> "$GITHUB_STEP_SUMMARY"
+      - name: Login to GHCR (private package)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and PUSH to separate PRIVATE candidate package (NO TESTS)
+      - name: Build and Push private four-model candidate (NO TESTS)
         uses: docker/build-push-action@v6
-        id: push
+        id: publish
         with:
-          context: /mnt/ltx23-oci-build/context
-          file: /mnt/ltx23-oci-build/context/Dockerfile.embedded-candidate
-          platforms: linux/amd64
+          context: ${{ env.STAGE }}
+          file: ${{ env.STAGE }}/Dockerfile.embedded-candidate
           push: true
+          platforms: linux/amd64
           tags: ${{ env.IMAGE }}
           provenance: false
           sbom: false
-      - name: Record digest, no pull or generation tests
+      - name: Record digest (no test)
+        shell: bash
         env:
-          DIGEST: ${{ steps.push.outputs.digest }}
+          DIGEST: ${{ steps.publish.outputs.digest }}
         run: |
           test -n "$DIGEST"
-          echo "Private candidate OCI: $IMAGE@$DIGEST" >> "$GITHUB_STEP_SUMMARY"
-          echo "NOT a public package, NOT a working RunPod video endpoint." >> "$GITHUB_STEP_SUMMARY"
+          echo "Candidate image: $IMAGE@$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          echo "PRIVATE PACKAGE ONLY; never change visibility to Public without legal approval." >> "$GITHUB_STEP_SUMMARY"
