@@ -1,112 +1,153 @@
-# LTX 2.3 RunPod Recovery Kit
+# LTX 2.3 / 10Eros ― RunPod Serverless 復旧キット
 
-**Independent recovery research — source scaffold, NOT a verified RunPod video endpoint.**
+**パソコン初心者向け・日本語手順書（2026年11月5日）**
 
-This repository records the historical **LTX 2.3 / 10Eros v1.4** four-model bundle with source URLs, immutable Hugging Face revisions, SHA256 checksums, a CPU-only verification suite, and an experimental independently authored RunPod/ComfyUI worker adapter.
+> **重要：現在は準備中です。動画を生成できる公開OCIは、まだ完成・検証できていません。**
+>
+> このREADMEの**診断テスト用イメージでは動画を作れません**。今すぐ課金して動画生成を試すことはおすすめしません。完成した場合は、冒頭に「動画生成：実機確認済み」と実行記録・固定OCI digestを表示します。現時点でその表示はありません。
 
-It does **not** use any owner's Docker Hub image as a build dependency, ship model weights, include access tokens, or assert GPU generation has succeeded.
+## 何ができるようになる予定？
 
-## 完成時の利用方法：2つのコース（配布ライセンスが判断基準）
+写真1枚と文章を送ると、音声付きMP4動画を作れる、自分専用のRunPod Serverless Endpointを持てるようにするものです。
 
-**A. 公開GHCRの完成済みイメージを指定する** — 再配布条件が満たされた場合の初心者向け最短コース。利用者はGitHubやDockerの操作なしに、自分のRunPod Endpointを作成できます。**現時点では実際のモデル同梱・生成可能な公開イメージは存在しません。** 既存の `oci-contract` / diagnosticsイメージは偽のモデルデータによる転送試験用で、動画は作れません。
+**完成後、初心者がするのは「RunPod登録 → 完成済みGHCRイメージを選ぶ → Endpointを作る → サンプルを送る」の4段階だけ。**
 
-**B. 各利用者が自分のGitHubで構築する** — 10Eros等の再配布許諾が未確認、地域・受領者制限がある、公開配布を避けたい場合の独立コース。正規配布元からモデルをクラウドビルド環境へ直接取り込み、SHA256検証後、各自の非公開GHCRにモデル同梱OCIを作る設計です。現時点ではこの巨大モデルの自動ビルドも未完成です。自分用の構築であってもモデルの利用条件は適用されます。
+- パソコンにDockerをインストール：**不要**
+- コマンド入力・Linux・GitHub Actions：**不要**
+- パソコンでモデル約42GBをダウンロード：**不要**
+- Hugging Faceのモデル4点を手作業で配置：**不要**
+- Network Volume作成：**不要**
 
-両コースとも**最終的なOCIには4モデル・ComfyUI・Worker・Workflowを同梱**するRirukaChan型を目指します。Network Volumeにモデルを別置きする方式ではありません。利用者のPCへの巨大ダウンロードを必須としませんが、GHCRとRunPodの間では大容量イメージの転送が必要です。
+完成版OCIは、10Eros v1.4 / Gemma 3 / dynamic LoRA / x2 Upscaler / ComfyUI / Worker / Workflowをあらかじめ同梱する**RirukaChan型**です。RunPodは初回に大容量OCIを取得するため、その時間は必要です。
 
-### 公開GHCRへ切り替える法的な条件
+## 最初に：どれを使えばいい？
 
-- LTX 2.3の **LTX-2 Community License (2026-01-05版)** は再配布を条件付きで許諾しています。第3条では契約として有効な利用制限の継承、全文とAttachment Aの提供、著作権表示維持、変更箇所の告知等が要求されます。単なる地域注意書きだけで全部を満たすとは限りません。
-- Gemma 3も条件付き再配布を認めますが、Gemma Terms of Use 3.1で利用制限の契約への組込み、規約全文と所定のNoticeファイルなどが求められます。
-- **10Eros作者TenStripは、公式ディスカッション#37でLTX-2ライセンスが適用されると明言しています。** 元のSulphur-2-baseにもLTX-2 Community License全文が含まれています。ただし、作者の回答は無条件のGHCR公開許諾ではなく、元のLTX条件の履行が必要です。
-- 禁輸・制裁対象など、実際に配布禁止となる先への提供は、READMEの注意書きでは合法化できません。
-- GPLのComfyUIや各Custom Node、Python依存パッケージの条件も別途確認します。
+| 名前 | 役割 | 動画は作れる？ |
+| --- | --- | --- |
+| GHCR「release」完成イメージ | 目標：本番RunPod Endpoint | **未公開・未検証。まだ指定しない** |
+| GHCR「diagnostics」 | RunPodがイメージを実行できるか確かめる小型Worker | **作れない（接続診断だけ）** |
+| GHCR「oci-contract」 | 分割された模擬モデル＋法務書類の同梱を確認する技術試験 | **作れない（RunPod用Workerではない）** |
 
-10Eros作者の回答：[Hugging Face Discussions #37](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37)。元モデルのライセンス：[Sulphur-2-base/LICENSE.txt](https://huggingface.co/SulphurAI/Sulphur-2-base/blob/main/LICENSE.txt)。
+**正規の動画生成用イメージ名・digest・JSONテストは、実GPU生成後に確定します。** 他サイトから「動くかもしれない」イメージを適当に指定しないでください。
 
-法的に配布可能と確認し、必要な受領者向け規約の有効な適用方法を整えた場合に限り、**公開GHCR完成版を初心者コースの先頭にします**。それまではソースとCPU試験用の模擬OCIだけを公開します。技術的・法的な詳細は [配布判断記録](docs/LEGAL_AUDIT.md) にまとめています。
+## A. 完成版が公開された後の初心者向け手順
 
+### 1. RunPodに登録する
 
-## 公開GHCRのライセンス対応（2026-11-05）
+1. ブラウザで https://www.runpod.io/ を開き、Sign Up（登録）からアカウントを作ります。
+2. メール認証と支払い設定を済ませます。**RunPodのGPUは従量課金**です。
+3. 「Serverless」の画面を開きます。無料で利用できるとは限りません。
+4. APIキーは自分だけの秘密情報です。GitHubの公開ページ、5ch、スクリーンショットに書かないでください。
 
-モデル4点を同梱した**公開GHCR版は現在も未承認**です。10Eros作者がLTX-2ライセンスの適用を明言したため、条件付き再配布の道はありますが、匿名Pullでは配布先への拘束力ある条件適用と輸出管理を確認できていません。
+### 2. 完成済みイメージを選ぶ（まだ使用不可）
 
-対応済み：LTX規約全文（Attachment A含む）、Gemma規約の2026-04-01版保存、Gemma必須Notice、ComfyUI GPL全文の収録。CPUテストでは、未承認のモデル入り公開イメージを拒否する仕組みを検証します。GitHub Actionsで模擬OCIのGHCRビルド・Pull・オフライン復元は実証済みです。
+完成後に、ここに**検証済みの実際の**イメージ参照先を記載します。
 
-詳細：[配布可否の最新状態](legal/public-ghcr-release-gates.json) / [日本語の判断記録](docs/DISTRIBUTION_POLICY_JA.md) / [権利者への具体的な質問文案](docs/RIGHTSHOLDER_INQUIRIES.md)。
+~~~text
+モデル同梱の本番イメージ：公開・動作検証待ち
+現在指定してよい実モデルのイメージ参照先：なし
+~~~
 
-**このリポジトリのMITライセンスはモデル自体をMITに変えるものではありません。** モデル同梱の無審査公開・地域制限の注意書きだけの対応は行いません。
+イメージの最後の @sha256:... は「この内容で固定する」という意味です。公開後は **latest ではなく固定digest** を使います。知らない相手のイメージや古いRirukaChan Docker Hubイメージを指定しないでください。
 
-## Status (2026-11-05)
+### 3. Endpointを作る（完成後）
 
-| Component | Status |
+1. RunPod Console → **Serverless** → **New Endpoint** を開きます。
+2. **Import from Docker Registry**（画面によりDocker/Container Image）を選びます。
+3. 上記の検証済みGHCRイメージ参照先をContainer Image欄に貼ります。
+4. Endpoint Typeは **Queue** を選びます。
+5. GPUは、このREADMEで公開時に**実機検証済みとした機種**を指定します。未検証のため今は指定推奨を断定しません。
+6. 費用を抑えて試す場合、Active Workersを **0**、Max Workersを **1** とする設定から始めます。Max Workersの上限と利用可能GPUはアカウント・地域・在庫で異なります。
+7. 完成版の実測値に基づくExecution Timeout・Disk・Idle Timeoutを入れ、**Deploy Endpoint** を押します。
+8. 作成されたEndpoint IDを控えます。APIキーは他人に見せないでください。
+
+**Active Workers 0でも、ジョブ中・起動中・Idle中のGPUには料金が発生し得ます。** Workerの課金状態はRunPodで確認してください。
+
+### 4. 動画生成をテストする（完成後）
+
+1. Endpoint画面の **Requests** を開きます。
+2. 公開後にここへ追記される**検証済みサンプルJSON**をコピーします。
+3. **Run** で送信して、COMPLETEDになるかを確認します。
+4. 実際にMP4を再生し、音声が含まれるかを確認します。
+5. 失敗したら、**Logs / Workers / Requests** を見ます。APIキーや個人の画像は公開せず、エラーの文章だけを共有してください。
+6. 使わない場合はEndpoint設定でWorkersを0にし、不要になったらEndpointを削除します。削除前に必要な履歴や出力を保存してください。
+
+**現段階では動作するWorkflowが欠けているため、動画用の偽サンプルJSONは掲載しません。**
+
+## B. 現時点で試せる範囲：GHCR診断テスト（動画は生成しない）
+
+小型の公開可能な診断コンテナで「RunPodが自分のコンテナを起動できるか」だけを確認するための手順です。診断用のGHCRパッケージが**Public**で、後述のCIが成功している場合のみ使えます。
+
+**診断用イメージ**（本番用ではありません）
+
+~~~text
+ghcr.io/open-video-recovery/ltx23-runpod-recovery:diagnostics
+~~~
+
+- 未認証Pullできるかは、GitHubのパッケージ公開設定で確認してください。GitHubの**公開リポジトリとGHCRパッケージ公開設定は別**です。
+- RunPodのServerless → New Endpoint → Import from Docker Registryを開き、診断用イメージを入力します。
+- Endpoint TypeはQueue、利用可能なGPUを選択し、Active Workers 0、Max Workers 1でDeployします。**診断でもGPU課金が発生し得ます。**
+- EndpointのRequestsで以下を送ります。
+
+~~~json
+{
+  "input": {
+    "task": "diagnostics"
+  }
+}
+~~~
+
+成功すればレスポンスのoutput内に次の項目が入ります。
+
+~~~json
+{
+  "status": "OK",
+  "build_kind": "diagnostics-only",
+  "ready_for_video": false,
+  "has_ltx_models": false,
+  "has_workflow": false,
+  "gpu_generated": false
+}
+~~~
+
+これは**コンテナが呼び出せるだけ**のテストです。モデルを含むGHCRイメージが完成したことを示すものではありません。検証を終えたらEndpointを削除してください。
+
+## C. 配布ライセンスと利用条件
+
+本キット独自のソースコードのMITライセンスは、以下の別々のモデルやソフトウェアをMITへ変更するものではありません。
+
+| 対象 | 配布条件 |
 | --- | --- |
-| Four historical models: files, locations, sizes, SHA256 | Recorded in `models.lock.json` |
-| Hugging Face download / independent integrity check | Implemented, CPU fixtures pass |
-| Original Python / workflow SHA256 metadata | Recorded in `docs/PROVENANCE.md` |
-| Original `workflows/i2v.json` source bytes | **NOT RECOVERED / NOT DISTRIBUTED** |
-| Independent `runtime/worker.py` | Experimental, unit-tested only |
-| `Dockerfile.experimental` | Incomplete reference, no GPU validation |
-| RunPod Endpoint, real MP4, independent image digest | **NOT VERIFIED** |
+| LTX 2.3 / 10Eros / LTX LoRA・Upscaler | [LTX-2 Community License (2026-01-05)](third_party_licenses/LTX-2-Community-License-2026-01-05.txt) と [Acceptable Use Policy](https://static.lightricks.com/legal/ltx-acceptable-use-policy.pdf) |
+| Gemma 3 text encoder | [Gemma Terms](https://ai.google.dev/gemma/terms)、[Gemma prohibited use policy](https://ai.google.dev/gemma/prohibited_use_policy)、[必須NOTICE](third_party_licenses/Gemma-NOTICE.txt) |
+| ComfyUI / Custom Nodes | [GPL-3.0全文](third_party_licenses/ComfyUI-GPL-3.0.txt)、各Custom Nodeの別ライセンスと著作権表示 |
 
-**Do not deploy or announce this scaffold as a functioning replacement for the retired RirukaChan image.**
+10Eros作者は [Hugging Face discussion #37](https://huggingface.co/TenStrip/LTX2.3-10Eros/discussions/37) でLTX-2ライセンスの適用を説明しています。利用条件には生成用途や下流配布に関する制限があります。**適切な利用とモデル再配布は別問題**です。利用者は規約と地域の法令を守る必要があります。
 
-## Offline checks
+公開モデル入りGHCRには、第三者の公開事例と同様に、モデル出典・全規約・必須Notice・変更点・使用制限を用意します。ただし**「他も公開している」ことだけで、匿名Pullが契約・輸出規制条件に適合したことにはなりません**。現状の公開可否判定は [こちら](legal/public-ghcr-release-gates.json)。必要な条件を満たすまでは実モデルの一般公開を行いません。
 
-Python 3.10 or newer:
+## D. 開発・公開状況（専門家向け）
 
-```bash
-python3 -m unittest discover -s tests -v
-python3 scripts/inspect_workflow.py /path/to/a/candidate/i2v.json
-```
+- [実証済み項目・未完了項目](docs/STATUS.md)
+- [GHCR / Hugging Face / Docker Hub の公開事例比較](docs/REDISTRIBUTION_PRECEDENTS_20261105.md)
+- [ライセンスと配布義務の監査](docs/LEGAL_AUDIT.md)
+- [配布判断の日本語説明](docs/DISTRIBUTION_POLICY_JA.md)
+- [権利者への照会文案](docs/RIGHTSHOLDER_INQUIRIES.md)
+- [モデル4点の固定revisionとSHA256](models.lock.json)
+- [旧Workflowの出典・未復元事項](workflows/README.md)
 
-The second command requires an actual candidate workflow. This repository intentionally does not ship a guessed workflow JSON.
+**OCI同梱の原則**：公開する予定の本番イメージにはモデル4点・Worker・ComfyUI・API Workflowを収録します。起動時に大容量モデルをDocker HubやHugging Faceから毎回取得する設計は採用しません。現在検証済みなのは**模擬ウェイト**を使ったGHCR Push/Pull・ネットワーク無しの復元のみです。
 
-## Download and verify the four model files
+## よくある質問
 
-```bash
-python3 -m pip install 'huggingface_hub>=0.30,<2'
-python3 scripts/download_models.py --model-root /path/to/ComfyUI/models
-python3 scripts/verify_models.py --model-root /path/to/ComfyUI/models
-```
+**Q. パソコンにDockerを入れますか？** いいえ。完成版はRunPod上の操作だけで使う想定です。
 
-This downloads **over 42 GB** of weights into a Hugging Face cache and copies them into the target directory; allow more disk space for cache and staging. Model download alone does not implement video generation. Follow each upstream model's access and redistribution terms, including any gated requirements.
+**Q. 完成版は今すぐ使えますか？** いいえ。公式の実モデル同梱イメージとGPU動画生成は未検証です。
 
-All binaries are downloaded by the **individual user directly from the upstream publishers** and verified against recorded SHA256 values. This project does not redistribute any models.
+**Q. 診断イメージで15秒動画が作れますか？** いいえ。接続確認専用です。
 
-## Historical technical structure
+**Q. GHCRのイメージが見えません。** リポジトリがPublicでもパッケージはPrivateのことがあります。公開者側の設定が必要です。
 
-- 10Eros v1.4 FP8 mixed checkpoint (video/audio VAE and vocoder bundled)
-- Gemma 3 12B FP4 mixed text encoder
-- LTX 2.3 distilled 1.1 **dynamic rank-111 LoRA** (not the different condsafe variant)
-- LTX 2.3 spatial upscaler x2 v1.1
-- Two-stage sampling: eight first-stage sigmas followed by three refine-stage sigmas
-- Native LTX I2V graph and RunPod Worker used several custom nodes
+**Q. 完成後、料金はどこで確認しますか？** RunPodのBilling/UsageとEndpointのWorker/Requestsで確認します。無料サービスではありません。
 
-See [OCI and source metadata](docs/PROVENANCE.md) and [workflow provenance](workflows/README.md). Recorded SHA256 values are **historical artifact evidence**, not proof of current Docker image availability.
-
-## Experimental Worker
-
-`runtime/worker.py` demonstrates a newly written input image + prompt → ComfyUI API graph → MP4 bridge. It requires an audited workflow with `__INPUT_IMAGE__`, `__PROMPT__`, and `__SEED__` placeholders, and a working `SaveVideo` output node. It fails closed without the workflow.
-
-`Dockerfile.experimental` is a **non-production prototype**: it neither includes the four model files nor locks the GPU/PyTorch/custom-node stack. It cannot replace the retired endpoint as-is.
-
-## Next milestones
-
-1. Obtain a distributable exact legacy workflow *or* independently implement a matching public ComfyUI API workflow.
-2. Pin ComfyUI, Custom Nodes, Torch and CUDA versions; audit file paths and graph compatibility.
-3. Build an independently owned Docker image and record immutable manifest digest.
-4. Validate a real image-to-video job with a supported RunPod GPU; collect verified MP4, job ID and cost.
-5. Only then mark a public release as usable.
-
-## References
-
-- [Original 10Eros model publisher](https://huggingface.co/TenStrip/LTX2.3-10Eros)
-- [10Eros author's workflows](https://huggingface.co/TenStrip/LTX2.3-10Eros_Workflows)
-- [ComfyUI](https://github.com/Comfy-Org/ComfyUI)
-- [RunPod Serverless documentation](https://docs.runpod.io/serverless/overview)
-- [日本語での確認手順](docs/PUBLISH_JA.md)
-
-## License and redistribution
-
-This project's newly written experimental code is separate from historical RirukaChan code, whose redistribution terms have not been established here. Original Python and Workflow bytes are **not** committed. Third-party model and node licenses are separate; no permission is inferred from a publicly readable image digest.
+**Q. 動かなければ？** エラーの本文、イメージのdigest、EndpointのGPU名、Workerの状態を記録してください。APIキー・個人画像は共有しないでください。
