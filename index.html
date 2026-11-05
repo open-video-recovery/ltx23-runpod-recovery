@@ -19,11 +19,16 @@ img{max-height:300px;max-width:100%;object-fit:contain;border:1px solid #9996;bo
 .small{font-size:.9em;color:gray}
 .error{color:#c33}
 </style>
+<script src="telemetry.js" defer></script>
 </head>
 <body>
 <header><h1>LTX 2.3 / 10Eros — RunPod JSON補助</h1>
 <p>画像と指示文から、RunPod Serverless の <strong>Requests</strong> に貼り付けるJSONを作ります。</p></header>
-<p><strong>完全ローカル処理：</strong>画像や指示文を外部送信しません。RunPod APIキーも不要です。生成実行はRunPod公式画面で行います。</p>
+<p><strong>画像・指示文は端末内で処理：</strong>画像・指示文・JSONをサイト運営者に送りません。RunPod APIキーも不要です。生成実行はRunPod公式画面で行います。</p>
+<fieldset><legend>匿名利用統計について</legend>
+<p class="small">サイト上での訪問・JSON作成・コピー・保存操作の件数を集計します。Cookie、外部広告トラッカーは使いません。同一タブの一時的な識別値を使い、元画像・指示文・生成JSON・APIキーを送信しません。計測情報は最大90日間保持します。集計APIに障害があってもJSON生成は利用できます。訪問者数はセッションの推定値で、個人の正確な人数ではありません。</p>
+<label class="small"><input type="checkbox" id="metrics-optin"> 任意：再訪傾向の計測に協力する（端末内に30日間の仮名識別子を保存。いつでもチェック解除で削除）</label>
+</fieldset>
 <fieldset><legend>1. 元画像と指示文</legend>
 <label>元画像 (JPEG/PNG/WebP)
 <input id="file" type="file" accept="image/jpeg,image/png,image/webp,image/*"></label>
@@ -49,7 +54,7 @@ img{max-height:300px;max-width:100%;object-fit:contain;border:1px solid #9996;bo
 <label>RunPodへ貼り付けるJSON
 <textarea id="output" readonly placeholder="ここに生成したJSONが表示されます"></textarea></label>
 <p>4. RunPod の Endpoint → Requests → JSON入力欄にコピーしたJSONを貼り付け、Runを押します。初回起動には時間がかかり、GPU料金が発生します。</p>
-<p class="small">このHTMLはJSONの作成補助専用です。APIキーの収集・アクセス計測・外部スクリプト読込・自動送信はありません。RunPod上で動作するコンテナ自体は別途必要です。</p>
+<p class="small">このHTMLはJSONの作成補助専用です。APIキーの収集やRunPodへの自動送信はありません。Netlify配信時は同一サイト内の匿名イベント計測を行います（画像・指示文・JSONは送信しません）。ローカルファイルでは計測されません。RunPod上で動作するコンテナ自体は別途必要です。</p>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -93,6 +98,7 @@ $('make').addEventListener('click',async()=>{
    $('output').value=JSON.stringify(body,null,2);
    $('copy').disabled=false;$('download').disabled=false;
    $('message').textContent='JSONを作成しました。RunPodのRequestsへ貼り付けてください。';
+   window.ovrMetrics?.send('json_created');
  }catch(e){$('message').textContent=e.message;$('message').className='error';}
 });
 $('copy').addEventListener('click',async()=>{
@@ -100,11 +106,13 @@ $('copy').addEventListener('click',async()=>{
  try{await navigator.clipboard.writeText(value);}
  catch(_){$('output').focus();$('output').select();if(!document.execCommand('copy')){ $('message').textContent='コピーできないため、下のJSONを選択して手動でコピーしてください。';return;}}
  $('message').textContent='コピーしました。';
+ window.ovrMetrics?.send('json_copied');
 });
 $('download').addEventListener('click',()=>{
  const blob=new Blob([$('output').value],{type:'application/json;charset=utf-8'});
  const url=URL.createObjectURL(blob),a=document.createElement('a');
  a.href=url;a.download='ltx23-request.json';document.body.append(a);a.click();a.remove();
+ window.ovrMetrics?.send('json_saved');
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 </script>
