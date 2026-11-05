@@ -18,7 +18,7 @@
 
 保存先：ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14
 
-初回作成のGHCR Packageは通常Privateです。利用者向けにPublicへ切り替える前に、モデル・元Worker・Workflowを含む全構成の再配布権限、利用規約、配布先への契約条件を確認してください。**ライセンス文書の追加だけでは他人のソースの許諾を新しく取得できません。**
+**LTX・Gemma・10Erosは既存ライセンスに基づく条件付き再配布とし、特別許諾待ちにはしません。** 追加レイヤーに必要な規約・Noticeを同梱します。GHCRをPublicにする前に、元Worker・Workflowなどモデル以外の権利と、利用条件・配布先の遵守を別途確認してください。
 
 ### GHCRの1レイヤー10GB上限
 
