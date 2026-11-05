@@ -1,0 +1,86 @@
+name: GHCR publish existing OCI + license overlay (no tests)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ghcr-ltx23-licensed-overlay
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      SOURCE_IMAGE: ${{ secrets.OCI_SOURCE_IMAGE }}
+      DEST_IMAGE: ghcr.io/open-video-recovery/ltx23-10eros-licensed:ltx23-v14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: "1.26.6"
+
+      - name: Install OCI registry copy utility
+        shell: bash
+        run: |
+          set -euo pipefail
+          GOBIN="$RUNNER_TEMP/bin" go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Prepare official license files as one additional OCI layer
+        shell: bash
+        run: |
+          set -euo pipefail
+          LICENSE_ROOT="$RUNNER_TEMP/overlay/opt/recovery-licenses"
+          mkdir -p "$LICENSE_ROOT"
+          cp -r third_party_licenses "$LICENSE_ROOT/"
+          cp NOTICE-THIRD-PARTY.md "$LICENSE_ROOT/"
+          python3 scripts/collect_official_policies.py --out "$LICENSE_ROOT/official-policies"
+          tar -cf "$RUNNER_TEMP/recovery-licenses.tar" -C "$RUNNER_TEMP/overlay" opt/recovery-licenses
+          test -s "$RUNNER_TEMP/recovery-licenses.tar"
+
+      - name: Read source OCI manifest without downloading image layers
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$SOURCE_IMAGE" ]; then
+            echo "Set repository secret OCI_SOURCE_IMAGE to the existing owned Docker Hub image reference." >&2
+            exit 2
+          fi
+          crane manifest --platform linux/amd64 "$SOURCE_IMAGE" > "$RUNNER_TEMP/source-manifest.json"
+          jq -e '.layers | type == "array"' "$RUNNER_TEMP/source-manifest.json" >/dev/null
+          jq -e 'all(.layers[]; .size < 10000000000)' "$RUNNER_TEMP/source-manifest.json" >/dev/null || {
+            echo "GHCR per-layer 10GB limit blocks an unchanged OCI; large layers must be re-layered." >&2
+            exit 3
+          }
+          echo "Unchanged source OCI layer descriptors are eligible for GHCR transport." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Log in to destination GHCR
+        shell: bash
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | crane auth login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Append ONLY license layer and publish to GHCR (NO TESTS)
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          crane append --platform linux/amd64 \
+            --base "$SOURCE_IMAGE" \
+            --new_layer "$RUNNER_TEMP/recovery-licenses.tar" \
+            --new_tag "$DEST_IMAGE" > "$RUNNER_TEMP/published-reference.txt"
+          FULL_REF="$(cat "$RUNNER_TEMP/published-reference.txt")"
+          DIGEST="$(crane digest "$DEST_IMAGE")"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "GHCR image: $DEST_IMAGE" >> "$GITHUB_STEP_SUMMARY"
+          echo "Immutable digest: $DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          echo "Only an additional legal-notices OCI layer was added; source worker and workflows retained." >> "$GITHUB_STEP_SUMMARY"
+          echo "Registry candidate: keep private until distribution requirements are fulfilled." >> "$GITHUB_STEP_SUMMARY"
