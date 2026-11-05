@@ -1,0 +1,9 @@
+{
+  "name":"open-video-recovery-netlify-helper",
+  "private":true,
+  "type":"module",
+  "version":"0.1.0",
+  "engines":{"node":">=20"},
+  "scripts":{"build":"node scripts/build-site.mjs","test":"node --test"},
+  "dependencies":{"@netlify/blobs":"11.1.7"}
+}
