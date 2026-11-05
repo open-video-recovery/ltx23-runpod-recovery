@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>管理者専用 — 利用統計</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:light dark}
+body{max-width:1100px;margin:20px auto;padding:16px;line-height:1.5}
+h1{font-size:1.55rem}h2{font-size:1.25rem}
+input,select,button{font:inherit;padding:9px}input{max-width:100%}
+.cardline{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}
+.card{border:1px solid #8885;border-radius:12px;padding:14px;min-width:155px;flex:1}
+.card b{font-size:1.75rem;display:block}
+.tablebox{overflow:auto}table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:9px 11px;text-align:right;border-bottom:1px solid #8885;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+small{opacity:.8}#status{min-height:1.4em}
+</style></head><body>
+<h1>利用統計（管理者のみ）</h1>
+<p>サーバーで認証されるまで集計は表示されません。管理者トークンはブラウザ内だけで保持し、URL・Cookie・保存領域には記録しません。</p>
+<form id="form">
+<label>管理者トークン <input id="token" type="password" autocomplete="off" required size="42"></label>
+<label>表示期間 <select id="days"><option value="30">過去30日</option><option value="90">過去90日</option><option value="7">過去7日</option></select></label>
+<button type="submit">集計を取得</button>
+<button type="button" id="clear">消去</button>
+</form>
+<p id="status" role="status"></p>
+<div id="results" hidden>
+<div class="cardline">
+<div class="card">延べ匿名セッション<b id="sessions"></b></div>
+<div class="card">JSON操作セッション<b id="active"></b></div>
+<div class="card">JSON作成回数<b id="created"></b></div>
+<div class="card">JSON保存操作回数<b id="saved"></b></div>
+</div>
+<p><small>「セッション」は同一タブ・同一閲覧期間の推定単位で、個人のユニーク人数ではありません。再訪は任意同意した仮名IDのみ。月別セッションは日別数の合計で、月内の重複は除外しません。すべて日本時間です。</small></p>
+<h2>月別</h2><div class="tablebox"><table><thead id="monthlyHead"></thead><tbody id="monthly"></tbody></table></div>
+<h2>日別</h2><div class="tablebox"><table><thead id="dailyHead"></thead><tbody id="daily"></tbody></table></div>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const fields=[['sessions','セッション'],['activeSessions','操作セッション'],
+  ['returningOptIn','再訪(任意同意)'],
+  ['json_created','JSON作成'],['json_copied','JSONコピー'],['json_saved','JSON保存'],
+  ['endpoint_created','Endpoint作成'],['video_started','動画開始'],
+  ['video_succeeded','動画成功'],['video_failed','動画失敗'],['video_downloaded','MP4保存操作']];
+function renderTable(headId,bodyId,rows,dateField){
+  $(headId).replaceChildren();$(bodyId).replaceChildren();
+  const tr=document.createElement('tr');
+  for(const title of [dateField==='day'?'日付':'月',...fields.map(x=>x[1])]){
+    const th=document.createElement('th');th.textContent=title;tr.append(th);
+  }$(headId).append(tr);
+  for(const r of [...rows].reverse()){
+    const line=document.createElement('tr');
+    for(const val of [r[dateField],...fields.map(([k])=>r[k] ?? r.events?.[k] ?? 0)]){
+      const td=document.createElement('td');td.textContent=String(val);line.append(td);
+    }$(bodyId).append(line);
+  }
+}
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();$('results').hidden=true;$('status').textContent='取得中…';
+  try{
+    const res=await fetch('/.netlify/functions/stats?days='+encodeURIComponent($('days').value),{
+      headers:{Authorization:'Bearer '+$('token').value},cache:'no-store',credentials:'omit'
+    });
+    const data=await res.json();
+    if(!res.ok)throw Error(data.error||'統計を取得できません');
+    const sum=(k)=>data.daily.reduce((v,r)=>v+(r[k]??r.events?.[k]??0),0);
+    $('sessions').textContent=sum('sessions');
+    $('active').textContent=sum('activeSessions');
+    $('created').textContent=sum('json_created');
+    $('saved').textContent=sum('json_saved');
+    renderTable('monthlyHead','monthly',data.monthly,'month');
+    renderTable('dailyHead','daily',data.daily,'day');
+    $('status').textContent='更新しました。';$('results').hidden=false;
+  }catch(err){$('status').textContent=err.message;}
+});
+$('clear').addEventListener('click',()=>{
+  $('token').value='';$('results').hidden=true;$('status').textContent='認証情報と表示結果を消去しました。';
+});
+</script></body></html>
