@@ -3,7 +3,7 @@
   "decision": "BLOCKED",
   "artifact": "public GHCR image containing LTX-2.3 10Eros v1.4, Gemma 3, LoRA and upscaler",
   "updated_on": "2026-11-05",
-  "note": "Source document inclusion is not sufficient to prove an enforceable downstream agreement or lawful worldwide anonymous access.",
+  "note": "Distribution permitted conditionally by source licenses. A public GHCR model package remains blocked until actual downstream enforceable terms, policy copies, third party notices, export compliance and tested engine are supported. Neither blanket written author permission nor a mandatory lawyer letter is stated in upstream Section 3.",
   "gates": {
     "ltx_license_text": {
       "status": "evidence_collected",
@@ -46,8 +46,8 @@
       "evidence": "LTX license Section 7; public worldwide pulls can reach restricted recipients"
     },
     "model_license_review_and_signoff": {
-      "status": "pending_legal_review",
-      "evidence": "Explicit written competent review required before full public release"
+      "status": "documented_compliance_assessment_pending",
+      "evidence": "No special written license is universally required by LTX-2 section 3 or Gemma section 3.1; demonstrate actual fulfillment of each condition. Independent specialist opinion is advisable for uncertain anonymous-pull and export-control terms, not a stated upstream license prerequisite."
     },
     "original_workflow_rights_or_independent_workflow": {
       "status": "pending",
