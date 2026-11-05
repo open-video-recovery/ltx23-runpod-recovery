@@ -87,3 +87,11 @@ docker push ghcr.io/open-video-recovery/ltx23-runpod-recovery:ltx23-10eros-v1.4
 - `scripts/render_embedded_dockerfile.py`は、この自前GHCRイメージをFROMとして4モデルの分割レイヤーを追加します。他者のモデル同梱OCIを丸ごとコピーしません。
 - ビルドのみのGitHub Actions：`[.github/workflows/ghcr-private-model-build.yml](../.github/workflows/ghcr-private-model-build.yml)`。`ltx-oci-large`ラベル付き大容量self-hosted runnerが必要で、現在この匿名アカウントに登録済みであることは確認できていません。
 - CPU・Workflow・GPUのテストはこのビルドジョブには含みません。4モデル入りの候補イメージは、Workflow未復元のため**動画生成不可**と明示します。最終的な公開は配布条件が満たされてからです。
+
+## Self-hosted Runner（公開者専用）
+
+既存のCI用Runnerを移設するのではなく、**同じ計算機に別Runnerを追加して、匿名アカウントのPrivateリポジトリからのみ実行**する手順を用意しました。
+
+- [非公開GitHubリポジトリの作成・専用Runner登録・ビルド起動手順](PRIVATE_BUILDER_SETUP_JA.md)
+- 本番モデル入り候補をビルドするActionsは手動実行のみ。テストWorkflowの自動実行は行いません。
+- GHCR実モデル候補はPrivateのまま保持し、一般公開用の権利義務は別途確定します。
