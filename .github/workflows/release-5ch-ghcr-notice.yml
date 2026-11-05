@@ -1,10 +1,7 @@
-name: Final 5ch model license + metadata release (reuses 22 layers)
+name: Refresh LTX 2.3 / 10Eros model release notice
 
 on:
-  push:
-    branches: [release/5ch-public-cleanup-20261106]
-    paths:
-      - ".github/workflows/release-5ch-ghcr-notice.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,7 +12,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
+  refresh-notice:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
@@ -24,8 +21,5 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Refresh upstream NOTICE using existing immutable image layers
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/oci/refresh_release_notice.py
+      - name: Update only license and OCI metadata; preserve model layers
+        run: python3 scripts/oci/refresh_release_notice.py
