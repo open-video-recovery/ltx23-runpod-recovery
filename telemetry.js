@@ -1,7 +1,7 @@
 // Same-origin-only, best-effort statistics. Never send images, JSON, prompt or credentials.
 (() => {
   'use strict';
-  const HOST_OK = location.protocol === 'https:';
+  const HOST_OK = location.origin === 'https://friendly-elf-6cfdcf.netlify.app';
   const SKEY='ovr-metrics-session-v1';
   const RKEY='ovr-metrics-return-v1';
   const DAYS=30*24*60*60*1000;
