@@ -25,6 +25,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install Netlify Blobs dependency
+        run: |
+          npm install --ignore-scripts --no-audit --no-fund
+          node -e "import('@netlify/blobs').then(m => { if (!m.getStore) process.exit(1) })"
       - name: Syntax and analytics tests
         run: |
           node --check telemetry.js
