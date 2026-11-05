@@ -1,0 +1,95 @@
+name: Rewrite Git history to mask legacy source account (one time)
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/scrub-source-account-history.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  scrub-history:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SOURCE_IMAGE: ${{ secrets.OCI_SOURCE_IMAGE }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Replace account reference in branch history without exposing it
+        shell: bash
+        run: |
+          set -euo pipefail
+          export GIT_TERMINAL_PROMPT=0
+          test -n "$SOURCE_IMAGE" || { echo SOURCE_IMAGE_SECRET_MISSING; exit 2; }
+          test -n "$GH_TOKEN" || { echo GITHUB_TOKEN_MISSING; exit 2; }
+
+          source_path="${SOURCE_IMAGE#docker.io/}"
+          source_owner="${source_path%%/*}"
+          if [[ -z "$source_owner" || "$source_path" == "$source_owner" || ! "$source_owner" =~ ^[a-z0-9_.-]+$ ]]; then
+            echo SOURCE_REFERENCE_INVALID
+            exit 2
+          fi
+
+          python3 -m pip install --disable-pip-version-check --quiet git-filter-repo==2.47.0
+
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          dir="${RUNNER_TEMP}/history-rewrite.git"
+          git clone --mirror --quiet "$url" "$dir"
+          cd "$dir"
+
+          remote_main="$(git rev-parse refs/heads/main)"
+          if [[ "$remote_main" != "$GITHUB_SHA" ]]; then
+            echo MAIN_MOVED_SINCE_WORKFLOW_START
+            exit 3
+          fi
+          maskfile="${RUNNER_TEMP}/legacy-account-replacements.txt"
+          printf 'literal:%s==>source-account-redacted\n' "$source_owner" > "$maskfile"
+          chmod 600 "$maskfile"
+
+          git filter-repo --force --replace-text "$maskfile" --no-fetch
+
+          SOURCE_OWNER="$source_owner" python3 - <<'PY'
+          import os
+          import subprocess
+          import sys
+          needle=os.environ["SOURCE_OWNER"].encode()
+          objects=subprocess.check_output(["git","rev-list","--objects","--all"],text=True).splitlines()
+          leaked=0
+          for row in objects:
+              oid=row.split(" ",1)[0]
+              raw=subprocess.check_output(["git","cat-file","-p",oid])
+              if needle in raw:
+                  leaked+=1
+          print("REWRITTEN_REACHABLE_OBJECTS_SCANNED",len(objects))
+          print("REWRITTEN_REACHABLE_LEAKED_OBJECTS",leaked)
+          if leaked: sys.exit(4)
+          PY
+
+          while IFS= read -r ref; do
+            branch="${ref#refs/heads/}"
+            if [[ "$branch" == "main" ]]; then
+              expected="$GITHUB_SHA"
+            else
+              expected="$(git ls-remote "$url" "$ref" | awk '{print $1}')"
+            fi
+            if [[ -z "$expected" ]]; then
+              echo REF_DISAPPEARED
+              exit 5
+            fi
+            git push --quiet --force-with-lease="$ref:$expected" "$url" "$ref:$ref"
+            echo "BRANCH_HISTORY_REWRITTEN" "$branch"
+          done < <(git for-each-ref --format='%(refname)' refs/heads)
+
+          new_main="$(git rev-parse refs/heads/main)"
+          echo "MAIN_REWRITTEN" "$new_main"
+          echo "GIT_BRANCH_HISTORY_CLEANED; PR refs and third-party copies remain separate"
+          if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+            {
+              echo "## History anonymization"
+              echo "- All writable Git branches rewritten with a redacted source-owner marker."
+              echo "- Every reachable rewritten Git object scanned for the original source owner."
+              echo "- Commit IDs changed; GitHub PR refs/caches cannot be purged using this workflow."
+              echo "- Main HEAD: $new_main"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
