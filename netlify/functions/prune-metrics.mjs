@@ -1,7 +1,7 @@
 import { getStore } from '@netlify/blobs';
 import { jstDay, dayOffset } from '../../lib/metrics.mjs';
 export default async function handler() {
-  const cutoff = dayOffset(jstDay(),-90);
+  const cutoff = dayOffset(jstDay(),-89);
   const store = getStore('ovr-anon-metrics-v1');
   const pending = [];
   try {
