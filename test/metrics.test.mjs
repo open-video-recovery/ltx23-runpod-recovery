@@ -28,4 +28,8 @@ test('daily sessions, active usage and opted-in revisits',()=>{
   assert.equal(r.daily[0].activeSessions,1);
   assert.equal(r.daily[1].returningOptIn,1);
   assert.equal(r.daily[1].events.json_saved,1);
+  assert.equal(r.daily[0].createdSessions,1);
+  assert.equal(r.daily[1].savedSessions,1);
+  assert.equal(r.weekly.length,1);
+  assert.equal(r.monthly.length,1);
 });
