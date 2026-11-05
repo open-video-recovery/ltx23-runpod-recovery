@@ -1,0 +1,27 @@
+name: GHCR private release safety audit (read-only)
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/ghcr-release-safety-audit.yml", "scripts/oci/audit_ghcr_release.py"]
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OCI_SOURCE_IMAGE: ${{ secrets.OCI_SOURCE_IMAGE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Audit ACTUAL immutable GHCR OCI labels, build history, and license layer
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/oci/audit_ghcr_release.py
