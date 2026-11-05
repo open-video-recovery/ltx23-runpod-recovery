@@ -48,7 +48,18 @@ Privateリポジトリの Settings → Secrets and variables → Actions → Var
 
 必要なら、PrivateリポジトリのActions Secretsに**HF_TOKEN**を保存してください。公開ファイルやログには書きません。
 
-## 4. Buildだけ実行
+## 4. 自前GHCRベースへのアクセス
+
+実モデル入り候補は、既にビルド済みの
+ghcr.io/open-video-recovery/ltx23-runpod-recovery:engine-base
+の固定DigestをFROMとして使用します。
+
+このGHCR packageがPrivateの場合、新しい非公開ビルドリポジトリへ
+**Package settings → Manage Actions access → Add repository** でアクセス権を付与してください。
+Publicパッケージなら認証不要でPullできる場合もありますが、公開可視性を推測せず
+実際のパッケージ設定を確認してください。
+
+## 5. Buildだけ実行
 
 Privateリポジトリ → Actions → **Private GHCR model OCI build (self-hosted, no tests)** → Run workflow。
 
